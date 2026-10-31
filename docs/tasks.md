@@ -2,57 +2,54 @@
 
 > **Dự án:** Ứng dụng Học Tiếng Anh Phân Tích Phát Âm AI (TH3)  
 > **Cơ cấu nhân sự:** **4 thành viên (Bao gồm Nhóm trưởng)**  
-> **Phiên bản:** 2.0.0-REVISED (Đã phân bổ lại trách nhiệm code trực tiếp cho Nhóm trưởng)
+> **Repository GitHub:** [https://github.com/DuongNguyenAnhh-3185/thuchanh3](https://github.com/DuongNguyenAnhh-3185/thuchanh3)
 
 ---
 
 ## 1. Cơ Cấu Nhân Sự 4 Thành Viên & Ma Trận Trách Nhiệm RACI
 
-Tổng quy mô nhóm là **4 thành viên**. Nhóm trưởng trực tiếp đảm nhận vai trò Trưởng nhóm kỹ thuật, chịu trách nhiệm kiến trúc và trực tiếp code một module trọng tâm.
-
-| Thành viên | Họ tên (Dự kiến) | Vai trò chính | Module trực tiếp phụ trách | Checklist TH3 |
-|---|---|---|---|:---:|
-| **Thành viên 1 (Nhóm trưởng)** | *Sinh viên 1* | **Team Lead & Data/Auth Dev** | Kiến trúc hệ thống, Cơ sở dữ liệu SQLite, Đăng nhập, Danh sách bài & Lịch sử | **Mục 1** (+ Quản lý) |
-| **Thành viên 2** | *Sinh viên 2* | **Progress & Motivation Dev** | Màn hình Tổng quan, Thuật toán Streak, Đo thời gian học thực tế, Cài đặt & Thông báo nhắc học | **Mục 2 & Mục 6** |
-| **Thành viên 3** | *Sinh viên 3* | **Audio & AI Engine Dev** | Màn hình Luyện tập, Thu âm micro, Tích hợp Speech Recognition & Mô hình AI so sánh âm vị, Lưu kết quả | **Mục 3 & Mục 4** |
-| **Thành viên 4** | *Sinh viên 4* | **Feedback UI & QA Lead** | Màn hình Kết quả, Trực quan hóa âm vị IPA, Module phản hồi/gợi ý sửa, Kế hoạch kiểm thử đa giọng nói | **Mục 5 & Mục 7** |
-
-> *(Lưu ý linh hoạt: Nếu Nhóm trưởng mạnh về AI/Audio hơn Data, Nhóm trưởng và Thành viên 3 có thể hoán đổi module cho nhau mà không làm thay đổi các hợp đồng giao tiếp giữa các màn hình).*
+| STT | Thành viên | Họ và tên | Vai trò kỹ thuật | Module & Checklist TH3 trực tiếp code | Nhánh Git riêng (Feature Branch) |
+|:---:|---|---|---|---|---|
+| **1** | **Nhóm trưởng** | **Nguyên Anh** | **Team Lead & Data/Auth Dev** | **Mục 1**: Cơ sở dữ liệu SQLite, Đăng nhập, Danh sách bài & Lịch sử | `feature/nguyen-anh-data-auth-lessons` |
+| **2** | **Thành viên 1** | **Hoài** | **Progress & Motivation Dev** | **Mục 2 & Mục 6**: Đếm Streak, đo thời gian học thực tế, Mục tiêu ngày, Cài đặt & Thông báo nhắc học | `feature/hoai-dashboard-streak-settings` |
+| **3** | **Thành viên 2** | **Cẩm Ly** | **Audio & AI Engine Dev** | **Mục 3 & Mục 4**: Thu âm micro, Tích hợp Speech Recognition & AI so sánh âm vị, Lưu kết quả | `feature/cam-ly-practice-audio-ai` |
+| **4** | **Thành viên 3** | **Thái** | **Feedback UI & QA Lead** | **Mục 5 & Mục 7**: Màn hình Kết quả, Trực quan hóa lỗi âm vị IPA, Gợi ý sửa lỗi, Kế hoạch kiểm thử đa giọng nói | `feature/thai-result-feedback-testing` |
 
 ---
 
 ### Ma Trận RACI Ánh Xạ 7 Mục Checklist TH3
 
 - **R (Responsible):** Người trực tiếp code và hoàn thiện.
-- **A (Accountable):** Nhóm trưởng chịu trách nhiệm nghiệm thu và ghép nối chung.
+- **A (Accountable):** Nhóm trưởng Nguyên Anh chịu trách nhiệm nghiệm thu và ghép nối chung.
 - **C (Consulted):** Người được tham vấn dữ liệu/giao diện.
 - **I (Informed):** Người nhận thông báo sau khi module hoàn thành.
 
 | Checklist TH3 | Nội dung yêu cầu đề bài | R (Trực tiếp làm) | A (Chịu trách nhiệm) | C (Phối hợp) | I (Theo dõi) |
 |---|---|:---:|:---:|:---:|:---:|
-| **Mục 1** | Thiết kế CSDL lưu trữ User, Lịch sử, Kết quả phát âm | **Nhóm trưởng** | Nhóm trưởng | TV3 (Schema AI) | TV2, TV4 |
-| **Mục 2** | Theo dõi tiến độ: đếm Streak, thời gian học, mục tiêu ngày | **TV2** | Nhóm trưởng | Nhóm trưởng (Query DB) | TV3, TV4 |
-| **Mục 3** | Thu âm và Speech Recognition (STT) | **TV3** | Nhóm trưởng | TV4 (Format audio) | Nhóm trưởng |
-| **Mục 4** | Mô hình AI / thuật toán so sánh âm vị (Phoneme comparison) | **TV3** | Nhóm trưởng | TV4 (Cấu trúc âm vị) | TV2 |
-| **Mục 5** | Module phản hồi: hiển thị điểm, tô màu âm sai, đề xuất bài tập | **TV4** | Nhóm trưởng | TV3 (Dữ liệu chấm) | TV2 |
-| **Mục 6** | Hệ thống thông báo nhắc nhở hàng ngày & hiển thị tiến độ | **TV2** | Nhóm trưởng | Nhóm trưởng (Lưu cài đặt) | TV3, TV4 |
-| **Mục 7** | Kiểm thử ứng dụng đa người dùng & nhiều giọng đọc khác nhau | **TV4** | Nhóm trưởng | Cả nhóm (Góp giọng) | Cả nhóm |
+| **Mục 1** | Thiết kế CSDL lưu trữ User, Lịch sử, Kết quả phát âm | **Nguyên Anh** | Nguyên Anh | Cẩm Ly (Schema AI) | Hoài, Thái |
+| **Mục 2** | Theo dõi tiến độ: đếm Streak, thời gian học, mục tiêu ngày | **Hoài** | Nguyên Anh | Nguyên Anh (Query DB) | Cẩm Ly, Thái |
+| **Mục 3** | Thu âm và Speech Recognition (STT) | **Cẩm Ly** | Nguyên Anh | Thái (Format audio) | Nguyên Anh |
+| **Mục 4** | Mô hình AI / thuật toán so sánh âm vị (Phoneme comparison) | **Cẩm Ly** | Nguyên Anh | Thái (Cấu trúc âm vị) | Hoài |
+| **Mục 5** | Module phản hồi: hiển thị điểm, tô màu âm sai, đề xuất bài tập | **Thái** | Nguyên Anh | Cẩm Ly (Dữ liệu chấm) | Hoài |
+| **Mục 6** | Hệ thống thông báo nhắc nhở hàng ngày & hiển thị tiến độ | **Hoài** | Nguyên Anh | Nguyên Anh (Lưu cài đặt) | Cẩm Ly, Thái |
+| **Mục 7** | Kiểm thử ứng dụng đa người dùng & nhiều giọng đọc khác nhau | **Thái** | Nguyên Anh | Cả nhóm (Góp giọng) | Cả nhóm |
 
 ---
 
-## 2. Phiếu Giao Việc Chi Tiết Cho 4 Thành Viên (Task Cards)
+## 2. Phiếu Giao Việc Chi Tiết Cho Từng Thành Viên (Task Cards)
 
 ---
 
-### 📋 Phiếu Giao Việc: Thành Viên 1 (Nhóm Trưởng)
-- **Họ tên & Vai trò:** **Nhóm trưởng (Team Lead & Data/Auth Dev)**
+### 📋 Phiếu Giao Việc: Nhóm Trưởng (Nguyên Anh)
+- **Họ tên & Vai trò:** **Nguyên Anh (Team Lead & Data/Auth Dev)**
+- **Nhánh Git làm việc:** `feature/nguyen-anh-data-auth-lessons`
 - **Checklist phụ trách:** **Mục 1** (Cơ sở dữ liệu người dùng, lịch sử, kết quả) + Quản trị dự án.
 - **Màn hình phụ trách:**
   1. `LoginScreen` (`/login`): Chọn tài khoản demo, nhập tên người học.
   2. `LessonListScreen` (`/lessons`): Danh sách bài học, lọc theo cấp độ (Cơ bản / Trung cấp / Nâng cao), xem phiên âm IPA câu mẫu.
   3. `HistoryScreen` (`/history`): Danh sách lịch sử các lượt luyện theo thời gian thực, bấm vào xem lại chi tiết kết quả cũ.
 - **Nhiệm vụ kỹ thuật:**
-  1. Quản lý kho Git, review Pull Request của 3 thành viên, giữ nhánh `main` luôn "Green Build".
+  1. Quản lý kho Git, review Pull Request của Hoài, Cẩm Ly, Thái; giữ nhánh `main` luôn "Green Build".
   2. Triển khai tầng cơ sở dữ liệu SQLite cục bộ (hoặc In-memory/Hive) theo đúng lược đồ tại [docs/data-contract.md](file:///d:/adrstu/th3/docs/data-contract.md).
   3. Cung cấp triển khai của `LessonRepository`, `AuthRepository`, `PracticeRepository`.
 - **Dữ liệu phát triển:** `mocks/lessons.json`, `mocks/history_multi_days.json`, `mocks/user_profile.json`.
@@ -65,8 +62,9 @@ Tổng quy mô nhóm là **4 thành viên**. Nhóm trưởng trực tiếp đả
 
 ---
 
-### 📋 Phiếu Giao Việc: Thành Viên 2
-- **Họ tên & Vai trò:** **Thành viên 2 (Progress & Motivation Dev)**
+### 📋 Phiếu Giao Việc: Thành Viên 1 (Hoài)
+- **Họ tên & Vai trò:** **Hoài (Progress & Motivation Dev)**
+- **Nhánh Git làm việc:** `feature/hoai-dashboard-streak-settings`
 - **Checklist phụ trách:** **Mục 2** (Theo dõi tiến độ, streak, thời gian học, mục tiêu) + **Mục 6** (Hệ thống thông báo nhắc nhở).
 - **Màn hình phụ trách:**
   1. `DashboardScreen` (`/dashboard`):
@@ -93,8 +91,9 @@ Tổng quy mô nhóm là **4 thành viên**. Nhóm trưởng trực tiếp đả
 
 ---
 
-### 📋 Phiếu Giao Việc: Thành Viên 3
-- **Họ tên & Vai trò:** **Thành viên 3 (Audio & AI Engine Dev)**
+### 📋 Phiếu Giao Việc: Thành Viên 2 (Cẩm Ly)
+- **Họ tên & Vai trò:** **Cẩm Ly (Audio & AI Engine Dev)**
+- **Nhánh Git làm việc:** `feature/cam-ly-practice-audio-ai`
 - **Checklist phụ trách:** **Mục 3** (Thu âm & Speech Recognition) + **Mục 4** (Mô hình AI so sánh âm vị).
 - **Màn hình phụ trách:**
   - `PracticeScreen` (`/practice`):
@@ -118,8 +117,9 @@ Tổng quy mô nhóm là **4 thành viên**. Nhóm trưởng trực tiếp đả
 
 ---
 
-### 📋 Phiếu Giao Việc: Thành Viên 4
-- **Họ tên & Vai trò:** **Thành viên 4 (Feedback UI & QA Lead)**
+### 📋 Phiếu Giao Việc: Thành Viên 3 (Thái)
+- **Họ tên & Vai trò:** **Thái (Feedback UI & QA Lead)**
+- **Nhánh Git làm việc:** `feature/thai-result-feedback-testing`
 - **Checklist phụ trách:** **Mục 5** (Module phản hồi, đánh dấu âm sai, gợi ý) + **Mục 7** (Kiểm thử đa giọng nói).
 - **Màn hình phụ trách:**
   - `ResultScreen` (`/result`):
@@ -143,15 +143,15 @@ Tổng quy mô nhóm là **4 thành viên**. Nhóm trưởng trực tiếp đả
 
 ---
 
-## 3. Quy Trình Phối Hợp Nhóm & Tích Hợp Sớm
+## 3. Quy Trình Phối Hợp Nhánh Git (Git Branching Strategy)
 
-1. **Quy tắc phân nhánh Git (4 người):**
-   - Nhóm trưởng: `feature/lead-database-auth-lessons`
-   - TV2: `feature/tv2-dashboard-streak-settings`
-   - TV3: `feature/tv3-practice-audio-ai-service`
-   - TV4: `feature/tv4-result-feedback-testing`
-2. **Quy trình tích hợp:**
-   - Hết Sprint 1 (Ngày 3): Nhóm trưởng ghép nối luồng Data + Auth + Dashboard + Streak.
-   - Hết Sprint 2 (Ngày 5): Ghép nối luồng Thu âm + AI Phân tích + Kết quả phản hồi.
-   - Ngày 6: Chạy kiểm thử End-to-End từ Đăng nhập $\rightarrow$ Chọn bài $\rightarrow$ Thu âm $\rightarrow$ Chấm AI $\rightarrow$ Xem kết quả $\rightarrow$ Cập nhật Streak $\rightarrow$ Xem Lịch sử.
-   - Ngày 7: TV4 hoàn thiện báo cáo kiểm thử đa giọng nói, Nhóm trưởng đóng gói nộp bài.
+1. **Nhánh chính (`main`):**
+   - Được bảo vệ, luôn ở trạng thái chạy được 100%.
+2. **Quy tắc phân nhánh riêng:**
+   - **Nguyên Anh (Lead):** `git checkout -b feature/nguyen-anh-data-auth-lessons`
+   - **Hoài (TV1):** `git checkout -b feature/hoai-dashboard-streak-settings`
+   - **Cẩm Ly (TV2):** `git checkout -b feature/cam-ly-practice-audio-ai`
+   - **Thái (TV3):** `git checkout -b feature/thai-result-feedback-testing`
+3. **Quy trình gửi Pull Request (PR):**
+   - Trước khi tạo PR: Chạy `flutter analyze` và `flutter test` đảm bảo 0 lỗi.
+   - Nhóm trưởng Nguyên Anh review, kiểm tra Data Contract và merge vào `main`.
