@@ -20,6 +20,8 @@ abstract class PracticeRepository {
   Future<void> savePracticeResult(PracticeResult result);
   Future<PracticeResult?> getSessionResult(String sessionId);
   Future<List<PracticeResult>> getHistory(String userId);
+  Future<void> deleteSession(String sessionId);
+  Future<void> clearHistory(String userId);
 }
 
 abstract class StreakProgressRepository {

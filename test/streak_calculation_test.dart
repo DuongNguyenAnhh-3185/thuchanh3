@@ -29,6 +29,12 @@ class TestPracticeRepo implements PracticeRepository {
       sessions.firstWhere((s) => s.sessionId == sessionId);
   @override
   Future<List<PracticeResult>> getHistory(String userId) async => sessions;
+  @override
+  Future<void> deleteSession(String sessionId) async =>
+      sessions.removeWhere((s) => s.sessionId == sessionId);
+  @override
+  Future<void> clearHistory(String userId) async =>
+      sessions.removeWhere((s) => s.userId == userId);
 }
 
 void main() {

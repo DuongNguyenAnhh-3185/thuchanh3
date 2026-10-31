@@ -62,6 +62,34 @@ class PracticeResult {
       'feedbackTips': feedbackTips,
     };
   }
+
+  PracticeResult copyWith({
+    String? sessionId,
+    String? lessonId,
+    String? userId,
+    String? completedAt,
+    int? activeDurationSeconds,
+    String? status,
+    ScoreBreakdown? scores,
+    String? transcript,
+    String? targetText,
+    List<WordEvaluation>? words,
+    List<String>? feedbackTips,
+  }) {
+    return PracticeResult(
+      sessionId: sessionId ?? this.sessionId,
+      lessonId: lessonId ?? this.lessonId,
+      userId: userId ?? this.userId,
+      completedAt: completedAt ?? this.completedAt,
+      activeDurationSeconds: activeDurationSeconds ?? this.activeDurationSeconds,
+      status: status ?? this.status,
+      scores: scores ?? this.scores,
+      transcript: transcript ?? this.transcript,
+      targetText: targetText ?? this.targetText,
+      words: words ?? this.words,
+      feedbackTips: feedbackTips ?? this.feedbackTips,
+    );
+  }
 }
 
 class ScoreBreakdown {

@@ -16,6 +16,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   final _services = AppServices();
   List<PracticeResult> _history = [];
   bool _isLoading = true;
+  String _selectedFilter = 'all'; // 'all', 'high', 'mid', 'low'
 
   @override
   void initState() {
@@ -27,10 +28,92 @@ class _HistoryScreenState extends State<HistoryScreen> {
     setState(() => _isLoading = true);
     final user = await _services.authRepo.getCurrentUser();
     final list = await _services.practiceRepo.getHistory(user.id);
+    if (!mounted) return;
     setState(() {
       _history = list;
       _isLoading = false;
     });
+  }
+
+  List<PracticeResult> get _filteredHistory {
+    switch (_selectedFilter) {
+      case 'high':
+        return _history.where((s) => (s.scores.overall ?? 0) >= 80).toList();
+      case 'mid':
+        return _history
+            .where((s) => (s.scores.overall ?? 0) >= 60 && (s.scores.overall ?? 0) < 80)
+            .toList();
+      case 'low':
+        return _history.where((s) => (s.scores.overall ?? 0) < 60).toList();
+      case 'all':
+      default:
+        return _history;
+    }
+  }
+
+  Future<void> _deleteSingleSession(PracticeResult item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xóa lượt luyện tập'),
+        content: Text('Bạn có chắc muốn xóa kết quả cho bài "${item.targetText.isNotEmpty ? item.targetText : item.lessonId}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.errorRed),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _services.practiceRepo.deleteSession(item.sessionId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã xóa lượt luyện tập.')),
+        );
+      }
+      await _loadHistory();
+    }
+  }
+
+  Future<void> _clearAllHistory() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xóa toàn bộ lịch sử'),
+        content: const Text(
+          'Hành động này sẽ xóa vĩnh viễn tất cả kết quả luyện tập của bạn và không thể khôi phục.\nBạn có chắc chắn?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.errorRed),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Xóa tất cả'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final user = await _services.authRepo.getCurrentUser();
+      await _services.practiceRepo.clearHistory(user.id);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã xóa toàn bộ lịch sử luyện tập.')),
+        );
+      }
+      await _loadHistory();
+    }
   }
 
   @override
@@ -38,33 +121,157 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lịch Sử Luyện Tập'),
+        actions: [
+          if (_history.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_sweep_rounded),
+              tooltip: 'Xóa toàn bộ lịch sử',
+              onPressed: _clearAllHistory,
+            ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _history.isEmpty
-              ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.history_toggle_off_rounded, size: 48, color: AppTheme.textMuted),
-                      SizedBox(height: 12),
-                      Text(
-                        'Chưa có lượt luyện tập nào.\nHãy bắt đầu bài luyện đầu tiên!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppTheme.textMuted),
-                      ),
-                    ],
+          : RefreshIndicator(
+              onRefresh: _loadHistory,
+              child: Column(
+                children: [
+                  _buildSummaryHeader(),
+                  _buildFilterChips(),
+                  Expanded(
+                    child: _filteredHistory.isEmpty
+                        ? _buildEmptyState()
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            itemCount: _filteredHistory.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            itemBuilder: (context, index) {
+                              final item = _filteredHistory[index];
+                              return _buildHistoryCard(item);
+                            },
+                          ),
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  itemCount: _history.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final item = _history[index];
-                    return _buildHistoryCard(item);
-                  },
-                ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildSummaryHeader() {
+    if (_history.isEmpty) return const SizedBox.shrink();
+
+    final totalSessions = _history.length;
+    final totalActiveSeconds = _history.fold<int>(0, (sum, s) => sum + s.activeDurationSeconds);
+    final validScores = _history.where((s) => s.scores.overall != null).map((s) => s.scores.overall!).toList();
+    final avgScore = validScores.isNotEmpty ? (validScores.reduce((a, b) => a + b) / validScores.length) : 0.0;
+
+    final minutes = totalActiveSeconds ~/ 60;
+    final seconds = totalActiveSeconds % 60;
+    final timeStr = minutes > 0 ? '${minutes}m ${seconds}s' : '${seconds}s';
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatColumn('Số lượt', '$totalSessions', Icons.history_rounded, AppTheme.accentIndigo),
+          Container(width: 1, height: 36, color: const Color(0xFFE2E8F0)),
+          _buildStatColumn('Điểm TB', '${avgScore.toStringAsFixed(1)}%', Icons.analytics_outlined, AppTheme.secondaryTeal),
+          Container(width: 1, height: 36, color: const Color(0xFFE2E8F0)),
+          _buildStatColumn('Thời gian', timeStr, Icons.timer_outlined, AppTheme.warningAmber),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatColumn(String label, String value, IconData icon, Color color) {
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterChips() {
+    if (_history.isEmpty) return const SizedBox.shrink();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Row(
+        children: [
+          _buildFilterChip('all', 'Tất cả (${_history.length})'),
+          const SizedBox(width: 8),
+          _buildFilterChip('high', '≥80 Điểm (${_history.where((s) => (s.scores.overall ?? 0) >= 80).length})'),
+          const SizedBox(width: 8),
+          _buildFilterChip('mid', '60-79 Điểm (${_history.where((s) => (s.scores.overall ?? 0) >= 60 && (s.scores.overall ?? 0) < 80).length})'),
+          const SizedBox(width: 8),
+          _buildFilterChip('low', '<60 Cần luyện (${_history.where((s) => (s.scores.overall ?? 0) < 60).length})'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String filterKey, String label) {
+    final isSelected = _selectedFilter == filterKey;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) {
+        setState(() => _selectedFilter = filterKey);
+      },
+      selectedColor: AppTheme.accentIndigo.withOpacity(0.15),
+      labelStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        color: isSelected ? AppTheme.accentIndigo : AppTheme.textMuted,
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.history_toggle_off_rounded, size: 56, color: AppTheme.textMuted),
+            const SizedBox(height: 14),
+            Text(
+              _history.isEmpty
+                  ? 'Chưa có lượt luyện tập nào.\nHãy bắt đầu bài luyện đầu tiên!'
+                  : 'Không có bài luyện nào khớp với bộ lọc.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.textMuted, fontSize: 14),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -93,7 +300,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           decoration: BoxDecoration(
             color: scoreColor.withOpacity(0.12),
             shape: BoxShape.circle,
-            border: Border.all(color: scoreColor.withOpacity(0.3), width: 1.5),
+            border: Border.all(color: scoreColor.withOpacity(0.35), width: 1.5),
           ),
           child: Center(
             child: Text(
@@ -122,13 +329,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                '• ${item.activeDurationSeconds}s',
+                '• ${item.activeDurationSeconds}s ghi âm',
                 style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
               ),
             ],
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: AppTheme.textMuted),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 20, color: AppTheme.textMuted),
+              tooltip: 'Xóa kết quả này',
+              onPressed: () => _deleteSingleSession(item),
+            ),
+            const Icon(Icons.chevron_right, color: AppTheme.textMuted),
+          ],
+        ),
         onTap: () {
           Navigator.pushNamed(
             context,
