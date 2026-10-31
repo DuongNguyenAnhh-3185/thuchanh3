@@ -19,12 +19,12 @@ Dự án TH3 hướng tới xây dựng một ứng dụng di động hoàn ch�
 
 | Mục | Yêu cầu nghiệp vụ TH3 | Trách nhiệm chính | Trách nhiệm phối hợp |
 |---|---|---|---|
-| **1** | Thiết kế cơ sở dữ liệu lưu trữ thông tin người dùng, lịch sử luyện tập và kết quả phân tích phát âm | **TV1** (Database & Auth) | TV3 (Cung cấp schema kết quả AI) |
-| **2** | Xây dựng tính năng theo dõi tiến độ học tập: đếm số ngày liên tiếp (streak), thống kê thời gian học, đặt mục tiêu hàng ngày | **TV2** (Dashboard & Progress) | TV1 (Lấy dữ liệu từ lịch sử) |
+| **1** | Thiết kế cơ sở dữ liệu lưu trữ thông tin người dùng, lịch sử luyện tập và kết quả phân tích phát âm | **Nhóm trưởng** (Database & Auth) | TV3 (Cung cấp schema kết quả AI) |
+| **2** | Xây dựng tính năng theo dõi tiến độ học tập: đếm số ngày liên tiếp (streak), thống kê thời gian học, đặt mục tiêu hàng ngày | **TV2** (Dashboard & Progress) | Nhóm trưởng (Lấy dữ liệu từ lịch sử) |
 | **3** | Tích hợp API nhận dạng giọng nói (Speech Recognition) để thu âm và xử lý phát âm người dùng | **TV3** (Audio & Speech AI) | TV4 (Định dạng âm thanh đầu vào) |
 | **4** | Sử dụng mô hình AI hoặc thuật toán so sánh âm vị (Phoneme Comparison) để phân tích độ chính xác và chấm điểm | **TV3** (Phoneme AI Engine) | TV4 (Nhận diện lỗi chi tiết) |
 | **5** | Xây dựng module phản hồi: hiển thị điểm số, đánh dấu âm phát âm sai, đề xuất bài tập cải thiện | **TV4** (Result & Feedback UI) | TV3 (Cung cấp dữ liệu điểm từ AI) |
-| **6** | Tạo hệ thống thông báo nhắc nhở luyện tập hàng ngày và giao diện hiển thị tiến độ học tập | **TV2** (Settings & Notifications) | TV1 (Lưu cấu hình nhắc nhở) |
+| **6** | Tạo hệ thống thông báo nhắc nhở luyện tập hàng ngày và giao diện hiển thị tiến độ học tập | **TV2** (Settings & Notifications) | Nhóm trưởng (Lưu cấu hình nhắc nhở) |
 | **7** | Kiểm thử ứng dụng với nhiều người dùng và các giọng nói khác nhau để đảm bảo độ chính xác của phân tích AI | **TV4** (Testing & QA Lead) | Cả nhóm (Thu thập dữ liệu mẫu) |
 
 ---

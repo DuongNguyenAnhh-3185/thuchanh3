@@ -1,171 +1,157 @@
 # Kế Hoạch Phân Công, Hạn Chót & Tiêu Chí Nghiệm Thu (Task Allocation & Acceptance Criteria)
 
 > **Dự án:** Ứng dụng Học Tiếng Anh Phân Tích Phát Âm AI (TH3)  
-> **Phiên bản:** 1.0.0-PROPOSAL  
-> **Người biên soạn:** Nhóm trưởng (Team Lead)
+> **Cơ cấu nhân sự:** **4 thành viên (Bao gồm Nhóm trưởng)**  
+> **Phiên bản:** 2.0.0-REVISED (Đã phân bổ lại trách nhiệm code trực tiếp cho Nhóm trưởng)
 
 ---
 
-## 1. Ma Trận Trách Nhiệm RACI & Ánh Xạ 7 Checklist TH3
+## 1. Cơ Cấu Nhân Sự 4 Thành Viên & Ma Trận Trách Nhiệm RACI
 
-- **R (Responsible):** Người trực tiếp thực hiện nhiệm vụ chính.
-- **A (Accountable):** Nhóm trưởng chịu trách nhiệm chung về tính tương thích và hoàn thiện.
-- **C (Consulted):** Người được tham vấn, phối hợp dữ liệu.
+Tổng quy mô nhóm là **4 thành viên**. Nhóm trưởng trực tiếp đảm nhận vai trò Trưởng nhóm kỹ thuật, chịu trách nhiệm kiến trúc và trực tiếp code một module trọng tâm.
+
+| Thành viên | Họ tên (Dự kiến) | Vai trò chính | Module trực tiếp phụ trách | Checklist TH3 |
+|---|---|---|---|:---:|
+| **Thành viên 1 (Nhóm trưởng)** | *Sinh viên 1* | **Team Lead & Data/Auth Dev** | Kiến trúc hệ thống, Cơ sở dữ liệu SQLite, Đăng nhập, Danh sách bài & Lịch sử | **Mục 1** (+ Quản lý) |
+| **Thành viên 2** | *Sinh viên 2* | **Progress & Motivation Dev** | Màn hình Tổng quan, Thuật toán Streak, Đo thời gian học thực tế, Cài đặt & Thông báo nhắc học | **Mục 2 & Mục 6** |
+| **Thành viên 3** | *Sinh viên 3* | **Audio & AI Engine Dev** | Màn hình Luyện tập, Thu âm micro, Tích hợp Speech Recognition & Mô hình AI so sánh âm vị, Lưu kết quả | **Mục 3 & Mục 4** |
+| **Thành viên 4** | *Sinh viên 4* | **Feedback UI & QA Lead** | Màn hình Kết quả, Trực quan hóa âm vị IPA, Module phản hồi/gợi ý sửa, Kế hoạch kiểm thử đa giọng nói | **Mục 5 & Mục 7** |
+
+> *(Lưu ý linh hoạt: Nếu Nhóm trưởng mạnh về AI/Audio hơn Data, Nhóm trưởng và Thành viên 3 có thể hoán đổi module cho nhau mà không làm thay đổi các hợp đồng giao tiếp giữa các màn hình).*
+
+---
+
+### Ma Trận RACI Ánh Xạ 7 Mục Checklist TH3
+
+- **R (Responsible):** Người trực tiếp code và hoàn thiện.
+- **A (Accountable):** Nhóm trưởng chịu trách nhiệm nghiệm thu và ghép nối chung.
+- **C (Consulted):** Người được tham vấn dữ liệu/giao diện.
 - **I (Informed):** Người nhận thông báo sau khi module hoàn thành.
 
-| Checklist TH3 | Nội dung công việc | R (Phụ trách) | C (Phối hợp) | Giao diện liên quan |
-|---|---|:---:|:---:|---|
-| **Mục 1** | Thiết kế CSDL lưu trữ User, Lịch sử, Kết quả phát âm | **TV1** | TV3 (Schema kết quả) | Data Layer & HistoryScreen |
-| **Mục 2** | Theo dõi tiến độ: đếm Streak, thống kê thời gian, mục tiêu ngày | **TV2** | TV1 (Query DB) | DashboardScreen |
-| **Mục 3** | Tích hợp thu âm và Speech Recognition (STT) | **TV3** | TV4 (Định dạng audio) | PracticeScreen |
-| **Mục 4** | Mô hình AI / thuật toán so sánh âm vị (Phoneme Comparison) | **TV3** | TV4 (Cấu trúc âm vị) | Phoneme AI Service |
-| **Mục 5** | Module phản hồi: hiển thị điểm, tô màu âm sai, đề xuất bài tập | **TV4** | TV3 (Dữ liệu chấm) | ResultScreen |
-| **Mục 6** | Hệ thống thông báo nhắc nhở hàng ngày & hiển thị tiến độ | **TV2** | TV1 (Lưu cài đặt) | SettingsScreen & Local Notifications |
-| **Mục 7** | Kiểm thử ứng dụng đa người dùng & nhiều giọng đọc khác nhau | **TV4** | Cả nhóm (Test cases) | Test Reports & QA Run |
+| Checklist TH3 | Nội dung yêu cầu đề bài | R (Trực tiếp làm) | A (Chịu trách nhiệm) | C (Phối hợp) | I (Theo dõi) |
+|---|---|:---:|:---:|:---:|:---:|
+| **Mục 1** | Thiết kế CSDL lưu trữ User, Lịch sử, Kết quả phát âm | **Nhóm trưởng** | Nhóm trưởng | TV3 (Schema AI) | TV2, TV4 |
+| **Mục 2** | Theo dõi tiến độ: đếm Streak, thời gian học, mục tiêu ngày | **TV2** | Nhóm trưởng | Nhóm trưởng (Query DB) | TV3, TV4 |
+| **Mục 3** | Thu âm và Speech Recognition (STT) | **TV3** | Nhóm trưởng | TV4 (Format audio) | Nhóm trưởng |
+| **Mục 4** | Mô hình AI / thuật toán so sánh âm vị (Phoneme comparison) | **TV3** | Nhóm trưởng | TV4 (Cấu trúc âm vị) | TV2 |
+| **Mục 5** | Module phản hồi: hiển thị điểm, tô màu âm sai, đề xuất bài tập | **TV4** | Nhóm trưởng | TV3 (Dữ liệu chấm) | TV2 |
+| **Mục 6** | Hệ thống thông báo nhắc nhở hàng ngày & hiển thị tiến độ | **TV2** | Nhóm trưởng | Nhóm trưởng (Lưu cài đặt) | TV3, TV4 |
+| **Mục 7** | Kiểm thử ứng dụng đa người dùng & nhiều giọng đọc khác nhau | **TV4** | Nhóm trưởng | Cả nhóm (Góp giọng) | Cả nhóm |
 
 ---
 
-## 2. Phiếu Giao Việc Chi Tiết Cho Từng Thành Viên (Task Cards)
+## 2. Phiếu Giao Việc Chi Tiết Cho 4 Thành Viên (Task Cards)
 
 ---
 
-### 📋 Phiếu Giao Việc TV1: Database, Xác Thực, Danh Sách Bài & Lịch Sử
-- **Người phụ trách:** **Thành viên 1 (TV1)**
-- **Mục tiêu Checklist:** Mục 1 (Cơ sở dữ liệu) + Luồng Đăng nhập, Bài học, Lịch sử.
-- **Đầu vào nhận gì:**
-  - Lược đồ SQLite tại [docs/data-contract.md](file:///d:/adrstu/th3/docs/data-contract.md).
-  - Tệp mẫu `mocks/lessons.json`, `mocks/history_multi_days.json`, `mocks/user_profile.json`.
-- **Cần làm:**
-  1. Tạo và quản lý SQLite Database cục bộ (hoặc In-memory/Hive repository): bảng `users`, `lessons`, `practice_sessions`, `daily_progress`.
-  2. Xây dựng màn hình Đăng nhập (`LoginScreen`): cho phép đổi tài khoản demo hoặc nhập tên.
-  3. Xây dựng màn hình Danh sách bài học (`LessonListScreen`): hiển thị danh sách, phân loại theo cấp độ (Beginner/Intermediate/Advanced), hiển thị phiên âm IPA câu mẫu.
-  4. Xây dựng màn hình Lịch sử (`HistoryScreen`): hiển thị danh sách các bài đã luyện theo thời gian, bấm vào xem lại chi tiết lượt luyện cũ.
-- **Điều kiện hoàn thành (Acceptance Criteria):**
-  - Chạy được độc lập với mock data mà không cần backend hay mic.
-  - Thêm, sửa, đọc dữ liệu DB không bị crash, không khóa bảng (deadlock).
-  - Danh sách bài lọc mượt theo tab cấp độ.
-  - Lịch sử hiển thị đúng ngày giờ địa phương (không bị lệch múi giờ UTC).
-- **Sản phẩm bàn giao:** Source code màn hình `login`, `lessons`, `history`, module database, unit test SQLite CRUD.
-- **Hạn chót hoàn thành:** Mốc Sprint 1 (Ngày 3)
+### 📋 Phiếu Giao Việc: Thành Viên 1 (Nhóm Trưởng)
+- **Họ tên & Vai trò:** **Nhóm trưởng (Team Lead & Data/Auth Dev)**
+- **Checklist phụ trách:** **Mục 1** (Cơ sở dữ liệu người dùng, lịch sử, kết quả) + Quản trị dự án.
+- **Màn hình phụ trách:**
+  1. `LoginScreen` (`/login`): Chọn tài khoản demo, nhập tên người học.
+  2. `LessonListScreen` (`/lessons`): Danh sách bài học, lọc theo cấp độ (Cơ bản / Trung cấp / Nâng cao), xem phiên âm IPA câu mẫu.
+  3. `HistoryScreen` (`/history`): Danh sách lịch sử các lượt luyện theo thời gian thực, bấm vào xem lại chi tiết kết quả cũ.
+- **Nhiệm vụ kỹ thuật:**
+  1. Quản lý kho Git, review Pull Request của 3 thành viên, giữ nhánh `main` luôn "Green Build".
+  2. Triển khai tầng cơ sở dữ liệu SQLite cục bộ (hoặc In-memory/Hive) theo đúng lược đồ tại [docs/data-contract.md](file:///d:/adrstu/th3/docs/data-contract.md).
+  3. Cung cấp triển khai của `LessonRepository`, `AuthRepository`, `PracticeRepository`.
+- **Dữ liệu phát triển:** `mocks/lessons.json`, `mocks/history_multi_days.json`, `mocks/user_profile.json`.
+- **Tiêu chí nghiệm thu (Acceptance Criteria):**
+  - Chạy mượt mà độc lập với mock data.
+  - Thao tác CRUD Database không bị crash, không deadlock.
+  - Lịch sử hiển thị chuẩn xác ngày giờ địa phương (không lệch múi giờ UTC).
+  - Code sạch, tuân thủ `flutter analyze` 0 issues.
+- **Hạn chót hoàn thành:** Sprint 1 (Ngày 3)
 
 ---
 
-### 📋 Phiếu Giao Việc TV2: Dashboard, Động Lực Học (Streak), Mục Tiêu & Nhắc Nhở
-- **Người phụ trách:** **Thành viên 2 (TV2)**
-- **Mục tiêu Checklist:** Mục 2 (Theo dõi tiến độ, streak, mục tiêu) + Mục 6 (Nhắc nhở học tập).
-- **Đầu vào nhận gì:**
-  - Đối tượng `UserProfile` và `DailyProgress` từ Repository.
-  - Dữ liệu mẫu `mocks/history_multi_days.json` và `mocks/history_with_gaps.json`.
-- **Cần làm:**
-  1. Xây dựng thuật toán tính Streak chuẩn:
-     - Đạt mục tiêu ngày (active duration $\ge$ daily goal) $\rightarrow$ ghi nhận ngày hoàn thành.
-     - Nhiều bài trong 1 ngày không làm tăng thêm số ngày streak.
-     - Có ngày bỏ học $\rightarrow$ streak reset về 1 khi bắt đầu ngày mới đạt chuẩn.
-  2. Xây dựng màn hình Tổng quan (`DashboardScreen`):
-     - Hiển thị huy hiệu Streak rực lửa 🔥 với lời động viên tích cực.
-     - Thanh tiến trình mục tiêu ngày (Circular/Linear Progress Bar: thời gian học thực tế / thời gian mục tiêu).
-     - Biểu đồ thời gian luyện tập trong tuần (7 ngày gần nhất).
-     - Nút "Luyện bài hôm nay" chuyển nhanh sang bài tập phù hợp.
-  3. Xây dựng màn hình Cài đặt (`SettingsScreen`) & Notification Engine:
-     - Cho phép chọn mục tiêu ngày (3, 5, 10, 15 phút).
-     - Cho phép chọn giờ nhắc học qua TimePicker và lên lịch thông báo đẩy (Local Notifications).
-     - Công tắc chuyển đổi linh hoạt chế độ Mock Mode / Real Mode.
-- **Điều kiện hoàn thành (Acceptance Criteria):**
-  - Đếm đúng số ngày Streak với cả 2 bộ test case: `history_multi_days.json` (streak = 7) và `history_with_gaps.json` (streak ngắt quãng).
-  - Không tăng streak khi người dùng mới chỉ mở ứng dụng mà chưa học đủ thời gian.
-  - Nhắc nhở kích hoạt đúng giờ cài đặt (hoặc mô phỏng thông báo thành công).
-- **Sản phẩm bàn giao:** Source code màn hình `dashboard`, `settings`, notification service, unit test thuật toán tính streak.
-- **Hạn chót hoàn thành:** Mốc Sprint 1 (Ngày 3)
+### 📋 Phiếu Giao Việc: Thành Viên 2
+- **Họ tên & Vai trò:** **Thành viên 2 (Progress & Motivation Dev)**
+- **Checklist phụ trách:** **Mục 2** (Theo dõi tiến độ, streak, thời gian học, mục tiêu) + **Mục 6** (Hệ thống thông báo nhắc nhở).
+- **Màn hình phụ trách:**
+  1. `DashboardScreen` (`/dashboard`):
+     - Huy hiệu ngọn lửa Streak 🔥 với câu chúc khích lệ.
+     - Thanh tiến trình mục tiêu ngày (% và thời gian đã học / mục tiêu).
+     - Biểu đồ cột thống kê 7 ngày gần nhất.
+     - Nút CTA chuyển nhanh sang bài tập hôm nay.
+  2. `SettingsScreen` (`/settings`):
+     - Chọn mục tiêu ngày (3, 5, 10, 15 phút).
+     - Bật/tắt và chọn giờ thông báo nhắc học (TimePicker).
+     - Công tắc chuyển đổi chế độ Mock Mode / Real Mode.
+- **Nhiệm vụ kỹ thuật:**
+  1. Cài đặt thuật toán tính Streak chuẩn:
+     - Đạt mục tiêu ngày (active duration $\ge$ daily goal) $\rightarrow$ ghi nhận hoàn thành.
+     - Học nhiều bài trong ngày không tăng thêm số ngày streak.
+     - Có ngày bỏ học $\rightarrow$ reset streak về 1 khi bắt đầu ngày mới đạt mục tiêu.
+  2. Tích hợp `ReminderNotificationService` (Local Notifications) để đặt lịch thông báo hàng ngày.
+- **Dữ liệu phát triển:** `mocks/history_multi_days.json`, `mocks/history_with_gaps.json`, `mocks/user_profile.json`.
+- **Tiêu chí nghiệm thu (Acceptance Criteria):**
+  - Tính đúng streak cho cả 2 bộ test case (streak 7 ngày liên tục và streak bị đứt quãng).
+  - Không tăng streak khi người dùng chưa học đủ số phút mục tiêu.
+  - Lên lịch thông báo chính xác theo giờ đã chọn.
+- **Hạn chót hoàn thành:** Sprint 1 (Ngày 3)
 
 ---
 
-### 📋 Phiếu Giao Việc TV3: Thu Âm, Phân Tích Âm Vị AI & Lưu Kết Quả
-- **Người phụ trách:** **Thành viên 3 (TV3)**
-- **Mục tiêu Checklist:** Mục 3 (Thu âm & Speech Recognition) + Mục 4 (Mô hình AI so sánh âm vị).
-- **Đầu vào nhận gì:**
-  - Tham số `PracticeScreenArgs` chứa thông tin bài học (`Lesson`).
-  - Hợp đồng `SpeechAiService` và `PracticeRepository` tại [docs/api-contract.md](file:///d:/adrstu/th3/docs/api-contract.md).
-  - Dữ liệu mẫu `mocks/practice_result_high.json`, `mocks/practice_result_low.json`, `mocks/api_error_responses.json`.
-- **Cần làm:**
-  1. Xây dựng màn hình Luyện tập (`PracticeScreen`):
-     - Hiển thị to rõ câu mẫu tiếng Anh, phiên âm IPA, bản dịch tiếng Việt.
-     - Nút phát âm thanh mẫu (Audio Sample / TTS) để người học nghe chuẩn trước khi nói.
-     - Nút bấm thu âm: hiển thị hiệu ứng nhấp nháy/sóng âm khi đang thu, đồng hồ đếm `activeDurationSeconds`.
-  2. Tích hợp Speech Recognition & AI Phoneme Comparison:
-     - Chế độ Mock: trả về kết quả mẫu tức thì từ `mocks/`.
-     - Chế độ Real: gửi audio lên API AI (Gemini Multimodal Speech / Whisper + Phoneme Alignment) để đối chiếu âm vị người dùng so với âm vị chuẩn IPA.
-  3. **Chịu trách nhiệm lưu kết quả duy nhất:** Sau khi nhận phản hồi AI thành công, gọi `PracticeRepository.savePracticeResult(...)`, sau đó chuyển hướng sang `ResultScreen` kèm đối tượng `PracticeResult`.
-  4. Xử lý triệt để các trạng thái lỗi: Không có tiếng nói (`SPEECH_NOT_DETECTED`), ghi âm quá ngắn (`AUDIO_EMPTY`), lỗi mạng, quá tải. Cho phép bấm "Thử lại".
-- **Điều kiện hoàn thành (Acceptance Criteria):**
-  - Thời gian học chỉ tính lúc đang thu âm, không tính thời gian chờ phản hồi AI.
-  - Phân tích đúng cấu trúc `WordEvaluation` và `PhonemeEvaluation`.
-  - Không tự phát sinh điểm giả khi AI gặp lỗi.
-  - Gọi lưu kết quả chính xác 1 lần, không tạo duplicate records.
-- **Sản phẩm bàn giao:** Source code màn hình `practice`, audio recording service, AI comparison service, unit test xử lý lỗi AI.
-- **Hạn chót hoàn thành:** Mốc Sprint 2 (Ngày 5)
+### 📋 Phiếu Giao Việc: Thành Viên 3
+- **Họ tên & Vai trò:** **Thành viên 3 (Audio & AI Engine Dev)**
+- **Checklist phụ trách:** **Mục 3** (Thu âm & Speech Recognition) + **Mục 4** (Mô hình AI so sánh âm vị).
+- **Màn hình phụ trách:**
+  - `PracticeScreen` (`/practice`):
+    - Thẻ câu mẫu in to, phiên âm IPA, bản dịch nghĩa.
+    - Nút nghe người bản xứ đọc mẫu (TTS / Audio Sample).
+    - Bộ nút micro (hiệu ứng sóng âm pulsing khi thu âm), đồng hồ đếm `activeDurationSeconds`.
+    - Hộp công cụ kiểm thử nhanh dữ liệu giả (chuyển đổi Điểm cao / Điểm thấp / Mô phỏng lỗi AI).
+- **Nhiệm vụ kỹ thuật:**
+  1. Tích hợp dịch vụ thu âm `AudioRecordingService` (đo chính xác thời gian thu âm thực tế).
+  2. Tích hợp `SpeechAiService`:
+     - Mock Mode: Trả về kết quả phân tích âm vị mẫu từ `mocks/`.
+     - Real Mode: Gửi audio đến API AI (Gemini Multimodal / Whisper) để nhận dạng và bóc tách âm vị đối chiếu với IPA chuẩn.
+  3. **Chịu trách nhiệm lưu kết quả duy nhất:** Khi AI trả về thành công $\rightarrow$ gọi `PracticeRepository.savePracticeResult(result)` lưu vào DB $\rightarrow$ chuyển sang `ResultScreen` kèm `PracticeResult`.
+  4. Xử lý triệt để các mã lỗi: `AUDIO_EMPTY`, `SPEECH_NOT_DETECTED`, `AI_TIMEOUT`. Không bao giờ tạo điểm giả khi có lỗi.
+- **Dữ liệu phát triển:** `mocks/practice_result_high.json`, `mocks/practice_result_low.json`, `mocks/api_error_responses.json`.
+- **Tiêu chí nghiệm thu (Acceptance Criteria):**
+  - Chỉ tính thời gian đang thu âm, không tính thời gian chờ AI phản hồi.
+  - Không phát sinh điểm giả khi AI báo lỗi; hiển thị thông báo và nút "Thử lại".
+  - Lưu kết quả vào DB chính xác 1 lần, không tạo bản ghi trùng lặp.
+- **Hạn chót hoàn thành:** Sprint 2 (Ngày 5)
 
 ---
 
-### 📋 Phiếu Giao Việc TV4: Màn Hình Kết Quả, Phân Tích Lỗi Âm Vị & Kế Hoạch Kiểm Thử
-- **Người phụ trách:** **Thành viên 4 (TV4)**
-- **Mục tiêu Checklist:** Mục 5 (Module phản hồi & hướng dẫn cải thiện) + Mục 7 (Kiểm thử đa giọng nói).
-- **Đầu vào nhận gì:**
-  - Đối tượng `PracticeResult` từ `ResultScreenArgs`.
-  - Các tệp mock: `practice_result_high.json`, `practice_result_low.json`, `practice_result_missing_metrics.json`, `practice_result_empty.json`.
-- **Cần làm:**
-  1. Xây dựng màn hình Kết quả (`ResultScreen`):
-     - Vòng tròn hiển thị điểm tổng thể (0 - 100), chuyển màu theo thang điểm.
-     - Hiển thị các chỉ số chi tiết: Accuracy, Fluency, Completeness (ẩn an toàn nếu mang giá trị `null`).
-     - Câu mẫu tương tác: Tô màu từng từ (Xanh: đúng, Vàng: cảnh báo, Đỏ: sai).
-     - Hộp thoại/BottomSheet chi tiết âm vị: Khi bấm vào từ (VD: `think`), hiển thị bảng so sánh âm vị mong đợi `/θ/` vs âm vị phát âm thực tế `/s/`.
-     - Danh sách lời khuyên cải thiện khẩu hình môi, răng, lưỡi do AI đề xuất.
-     - Nút "Luyện lại bài này" (Retry) và nút "Bài tiếp theo" / "Về trang chủ".
+### 📋 Phiếu Giao Việc: Thành Viên 4
+- **Họ tên & Vai trò:** **Thành viên 4 (Feedback UI & QA Lead)**
+- **Checklist phụ trách:** **Mục 5** (Module phản hồi, đánh dấu âm sai, gợi ý) + **Mục 7** (Kiểm thử đa giọng nói).
+- **Màn hình phụ trách:**
+  - `ResultScreen` (`/result`):
+    - Vòng tròn điểm tổng thể (0 - 100), chuyển màu theo mức điểm (Xanh $\ge 80$, Vàng $60-79$, Đỏ $< 60$).
+    - Bảng chỉ số phụ: Accuracy, Fluency, Completeness (ẩn an toàn nếu `null`).
+    - Bản đồ câu tương tác: Tô màu từng từ (Xanh: đúng, Vàng: cần chú ý, Đỏ: sai âm vị).
+    - BottomSheet đối chiếu âm vị: Khi bấm vào từ (VD: `think`), hiển thị âm vị chuẩn `/θ/` vs âm vị phát âm thực tế `/s/`.
+    - Danh sách mẹo khẩu hình miệng, môi, răng, lưỡi do AI đề xuất.
+    - Nút "Luyện lại bài này" (Retry) và nút "Về trang chủ".
+- **Nhiệm vụ kỹ thuật:**
+  1. Xây dựng giao diện hiển thị thụ động (Read-only view), tuyệt đối không gọi lệnh ghi đè database tại màn hình này.
   2. Xây dựng Kế hoạch Kiểm thử Đa giọng nói (Checklist Mục 7):
-     - Thiết lập ma trận kiểm thử với nhiều người dùng (Nam, Nữ, Người mới học, Người phát âm tốt, Người nói giọng địa phương).
-     - Tổng hợp báo cáo độ chính xác của AI và các ca kiểm thử biên (Edge cases).
-- **Điều kiện hoàn thành (Acceptance Criteria):**
-  - Chạy mượt mà, không crash với cả 4 trường hợp dữ liệu mẫu: Điểm cao, Điểm thấp có lỗi âm vị, Thiếu chỉ số phụ (`null`), và Danh sách từ rỗng.
-  - Giao diện đẹp, trực quan, dễ hiểu đối với người học ngoại ngữ.
-  - Bộ tài liệu test case và biên bản nghiệm thu kiểm thử hoàn chỉnh.
-- **Sản phẩm bàn giao:** Source code màn hình `result`, bottom sheet phân tích âm vị, tài liệu test report mục 7.
-- **Hạn chót hoàn thành:** Mốc Sprint 2 (Ngày 5)
+     - Thiết lập ma trận thử nghiệm: Giọng nam, giọng nữ, người mới bắt đầu, người phát âm tốt, người nói giọng vùng miền.
+     - Lập bảng tổng kết độ chính xác nhận diện âm vị và biên bản nghiệm thu sản phẩm.
+- **Dữ liệu phát triển:** `mocks/practice_result_high.json`, `mocks/practice_result_low.json`, `mocks/practice_result_missing_metrics.json`, `mocks/practice_result_empty.json`.
+- **Tiêu chí nghiệm thu (Acceptance Criteria):**
+  - Hiển thị mượt mà không crash với cả 4 ca kiểm thử: Điểm cao, Điểm thấp có lỗi âm vị, Thiếu chỉ số phụ (`null`), và Danh sách từ rỗng.
+  - Giao diện đẹp mắt, dễ hiểu với người học tiếng Anh.
+  - Bàn giao báo cáo kiểm thử đa giọng đọc hoàn chỉnh cho nhóm.
+- **Hạn chót hoàn thành:** Sprint 2 (Ngày 5)
 
 ---
 
-## 3. Quy Trình Phối Hợp Git & Kiểm Soát Thay Đổi (Git Workflow)
+## 3. Quy Trình Phối Hợp Nhóm & Tích Hợp Sớm
 
-1. **Nhánh chính (`main`):**
-   - Luôn ở trạng thái biên dịch thành công và chạy được ứng dụng (Green Build).
-   - Nghiêm cấm push trực tiếp lên `main`.
-2. **Quy tắc đặt tên nhánh tính năng:**
-   - TV1: `feature/tv1-database-auth-lessons`
+1. **Quy tắc phân nhánh Git (4 người):**
+   - Nhóm trưởng: `feature/lead-database-auth-lessons`
    - TV2: `feature/tv2-dashboard-streak-settings`
    - TV3: `feature/tv3-practice-audio-ai-service`
    - TV4: `feature/tv4-result-feedback-testing`
-3. **Quy trình gửi Pull Request (PR):**
-   - Mỗi PR chỉ tập trung vào một nhóm màn hình hoặc module đã được giao.
-   - Trước khi tạo PR: Bắt buộc chạy lệnh kiểm tra cú pháp và lỗi cảnh báo:
-     ```bash
-     flutter analyze
-     flutter test
-     ```
-   - Nhóm trưởng review mã nguồn, kiểm tra xem có vi phạm Data Contract hay không trước khi merge vào `main`.
-4. **Quản lý thay đổi hợp đồng (Contract Change Management):**
-   - Nếu bất kỳ thành viên nào phát hiện cần bổ sung trường dữ liệu mới trong Model hoặc API: **Phải thông báo cho Nhóm trưởng**.
-   - Nhóm trưởng cập nhật đồng thời vào `docs/data-contract.md`, cập nhật các file JSON mẫu trong `mocks/`, thông báo cho các thành viên bị ảnh hưởng trước khi code tiếp.
-
----
-
-## 4. Lộ Trình Phát Triển (Milestones & Deadlines)
-
-```
-[Ngày 1]: Nhóm trưởng ban hành Bộ tài liệu + Khung dự án chạy được (Clean Architecture + Mock Services)
-   │
-   ├─► [Ngày 2 - 3] (Sprint 1): TV1 & TV2 hoàn thiện Khung dữ liệu, Auth, Dashboard, Streak, Settings
-   │
-   ├─► [Ngày 4 - 5] (Sprint 2): TV3 & TV4 hoàn thiện Module Luyện tập, Thu âm, AI so sánh âm vị, Kết quả
-   │
-   ├─► [Ngày 6] (Tích hợp & Ghép nối): Tích hợp luồng chạy hoàn chỉnh end-to-end từ Đăng nhập -> Luyện -> Kết quả -> Lịch sử
-   │
-   └─► [Ngày 7] (QA & Hoàn tất): Kiểm thử đa giọng đọc (Checklist 7), đóng gói ứng dụng, hoàn tất báo cáo nộp bài.
-```
+2. **Quy trình tích hợp:**
+   - Hết Sprint 1 (Ngày 3): Nhóm trưởng ghép nối luồng Data + Auth + Dashboard + Streak.
+   - Hết Sprint 2 (Ngày 5): Ghép nối luồng Thu âm + AI Phân tích + Kết quả phản hồi.
+   - Ngày 6: Chạy kiểm thử End-to-End từ Đăng nhập $\rightarrow$ Chọn bài $\rightarrow$ Thu âm $\rightarrow$ Chấm AI $\rightarrow$ Xem kết quả $\rightarrow$ Cập nhật Streak $\rightarrow$ Xem Lịch sử.
+   - Ngày 7: TV4 hoàn thiện báo cáo kiểm thử đa giọng nói, Nhóm trưởng đóng gói nộp bài.

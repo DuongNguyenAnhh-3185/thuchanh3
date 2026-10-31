@@ -11,14 +11,14 @@
 Tài liệu này định nghĩa chính xác các phương thức trừu tượng (Abstract Interfaces trong Dart) và quy cách giao tiếp mạng (REST API).
 - **Phát triển độc lập:** Từng thành viên chỉ cần gọi các phương thức qua Interface chung. Không cần quan tâm bên trong người khác viết SQL gì hay gọi thư viện AI nào.
 - **Hoán đổi Mock & Real:** Mọi Interface đều có 2 bản triển khai:
-  1. `Mock*Service`: Trả về dữ liệu mẫu tức thì từ `assets/mocks/` để TV1, TV2, TV4 phát triển và test giao diện ngay lập tức.
-  2. `Real*Service`: Kết nối cơ sở dữ liệu thật và các API AI (Gemini / Whisper / Azure Speech) do TV1 và TV3 hoàn thiện.
+  1. `Mock*Service`: Trả về dữ liệu mẫu tức thì từ `assets/mocks/` để cả 4 thành viên phát triển và test giao diện ngay lập tức.
+  2. `Real*Service`: Kết nối cơ sở dữ liệu thật và các API AI (Gemini / Whisper / Azure Speech) do Nhóm trưởng và TV3 hoàn thiện.
 
 ---
 
 ## 2. Chi Tiết Các Dart Service Interfaces
 
-### 2.1. `LessonRepository` (TV1 cung cấp - Cả nhóm sử dụng)
+### 2.1. `LessonRepository` (Nhóm trưởng cung cấp - Cả nhóm sử dụng)
 ```dart
 abstract class LessonRepository {
   /// Lấy toàn bộ danh sách bài học
@@ -87,7 +87,7 @@ abstract class SpeechAiService {
 }
 ```
 
-### 2.4. `PracticeRepository` (TV1 cung cấp - TV3 ghi kết quả, TV1 & TV4 đọc kết quả)
+### 2.4. `PracticeRepository` (Nhóm trưởng cung cấp - TV3 ghi kết quả, Nhóm trưởng & TV4 đọc kết quả)
 ```dart
 abstract class PracticeRepository {
   /// Lưu kết quả một lượt luyện tập vào cơ sở dữ liệu (Single Source of Truth)
@@ -102,7 +102,7 @@ abstract class PracticeRepository {
 }
 ```
 
-### 2.5. `StreakProgressRepository` (TV1 cung cấp - TV2 sử dụng)
+### 2.5. `StreakProgressRepository` (Nhóm trưởng cung cấp - TV2 sử dụng)
 ```dart
 abstract class StreakProgressRepository {
   /// Lấy tiến độ học tập của ngày hôm nay theo múi giờ địa phương

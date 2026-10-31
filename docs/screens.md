@@ -1,8 +1,8 @@
 # Đặc Tả Luồng Màn Hình & Phân Công Trách Nhiệm (Screen Flow & Ownership)
 
 > **Dự án:** Ứng dụng Học Tiếng Anh Phân Tích Phát Âm AI (TH3)  
-> **Phiên bản:** 1.0.0-PROPOSAL  
-> **Người biên soạn:** Nhóm trưởng (Team Lead)
+> **Cơ cấu nhóm:** **4 thành viên (Bao gồm Nhóm trưởng)**  
+> **Phiên bản:** 2.0.0-REVISED
 
 ---
 
@@ -10,56 +10,57 @@
 
 ```
                      ┌───────────────────────┐
-                     │   Màn hình Đăng nhập  │ (TV1)
+                     │   Màn hình Đăng nhập  │ (Nhóm trưởng)
                      │     (LoginScreen)     │
                      └───────────┬───────────┘
                                  │ Đăng nhập thành công
                                  ▼
                      ┌───────────────────────┐
-                     │   Màn hình Tổng quan  │ (TV2)
+                     │   Màn hình Tổng quan  │ (Thành viên 2)
                      │   (DashboardScreen)   │
                      └─────┬───────────┬─────┘
           Chọn bài học     │           │ Xem thống kê / Cài đặt
           hoặc Luyện nhanh │           │
                            ▼           ▼
        ┌──────────────────────┐    ┌──────────────────────┐
-       │  Danh sách bài học   │    │  Cài đặt & Nhắc nhở  │ (TV2)
+       │  Danh sách bài học   │    │  Cài đặt & Nhắc học  │ (Thành viên 2)
        │  (LessonListScreen)  │    │   (SettingsScreen)   │
        └──────────┬───────────┘    └──────────────────────┘
+                  │ (Nhóm trưởng)
                   │ Chọn `lessonId`
                   ▼
        ┌──────────────────────┐
-       │  Màn hình Luyện tập  │ (TV3) ◄────────┐
-       │   (PracticeScreen)   │                │ Luyện lại
-       └──────────┬───────────┘                │ (Retry)
-                  │ Thu âm -> AI chấm -> Lưu   │
-                  │ Truyền `PracticeResult`    │
-                  ▼                            │
-       ┌──────────────────────┐                │
-       │   Màn hình Kết quả   │ (TV4) ─────────┘
+       │  Màn hình Luyện tập  │ (Thành viên 3) ◄──────┐
+       │   (PracticeScreen)   │                       │ Luyện lại
+       └──────────┬───────────┘                       │ (Retry)
+                  │ Thu âm -> AI chấm -> Lưu vào DB   │
+                  │ Truyền `PracticeResult`           │
+                  ▼                                   │
+       ┌──────────────────────┐                       │
+       │   Màn hình Kết quả   │ (Thành viên 4) ───────┘
        │    (ResultScreen)    │
        └──────────┬───────────┘
                   │ Xem lại lịch sử
                   ▼
        ┌──────────────────────┐
-       │   Lịch sử luyện tập  │ (TV1)
+       │   Lịch sử luyện tập  │ (Nhóm trưởng)
        │   (HistoryScreen)    │
        └──────────────────────┘
 ```
 
 ---
 
-## 2. Bảng Ma Trận Màn Hình & Người Phụ Trách
+## 2. Bảng Ma Trận Màn Hình & Người Phụ Trách (4 Thành Viên)
 
 | Tên Màn hình | Tên Route | Người phụ trách | Dữ liệu đầu vào (Input) | Hành động người dùng | Màn hình đích (Output Target) |
 |---|---|---|---|---|---|
-| **Đăng nhập** | `/login` | **TV1** | Không | Bấm "Bắt đầu học" hoặc chọn tài khoản demo | `/dashboard` (Clear stack) |
-| **Tổng quan** | `/dashboard` | **TV2** | `UserProfile`, `DailyProgress` | 1. Bấm "Luyện ngay"<br>2. Bấm "Danh sách bài"<br>3. Bấm "Lịch sử"<br>4. Bấm "Cài đặt" | 1. `/practice` (`lessonId` ưu tiên)<br>2. `/lessons`<br>3. `/history`<br>4. `/settings` |
-| **Danh sách bài**| `/lessons` | **TV1** | Bộ lọc cấp độ (Tùy chọn) | Chọn một thẻ bài học cụ thể | `/practice` (truyền `Lesson` hoặc `lessonId`) |
-| **Luyện tập** | `/practice` | **TV3** | `Lesson` object hoặc `lessonId: String` | 1. Bấm nghe mẫu (TTS)<br>2. Bấm giữ/chạm thu âm<br>3. Bấm "Chấm điểm AI" | `/result` (truyền `PracticeResult`) |
-| **Kết quả** | `/result` | **TV4** | `PracticeResult` object | 1. Chạm vào từ để xem lỗi âm vị<br>2. Bấm "Luyện lại"<br>3. Bấm "Về trang chủ" | 1. Mở BottomSheet phân tích âm vị<br>2. `/practice` (`lessonId`)<br>3. `/dashboard` (Pop to root) |
-| **Lịch sử** | `/history` | **TV1** | `userId: String` | Bấm vào 1 mục trong danh sách lịch sử | `/result` (mở lại kết quả cũ đã lưu) |
-| **Cài đặt** | `/settings` | **TV2** | `UserProfile` | 1. Chọn số phút mục tiêu (3-15p)<br>2. Đổi giờ nhắc học (TimePicker)<br>3. Bật/tắt Mock Mode | Lưu cấu hình, quay lại `/dashboard` |
+| **Đăng nhập** | `/login` | **Nhóm trưởng** | Không | Bấm "Bắt đầu học" hoặc chọn tài khoản demo | `/dashboard` (Clear stack) |
+| **Tổng quan** | `/dashboard` | **Thành viên 2** | `UserProfile`, `DailyProgress` | 1. Bấm "Luyện ngay"<br>2. Bấm "Danh sách bài"<br>3. Bấm "Lịch sử"<br>4. Bấm "Cài đặt" | 1. `/practice` (`lessonId` ưu tiên)<br>2. `/lessons`<br>3. `/history`<br>4. `/settings` |
+| **Danh sách bài**| `/lessons` | **Nhóm trưởng** | Bộ lọc cấp độ (Tùy chọn) | Chọn một thẻ bài học cụ thể | `/practice` (truyền `Lesson` hoặc `lessonId`) |
+| **Luyện tập** | `/practice` | **Thành viên 3** | `Lesson` object hoặc `lessonId: String` | 1. Bấm nghe mẫu (TTS)<br>2. Bấm giữ/chạm thu âm<br>3. Bấm "Chấm điểm AI" | `/result` (truyền `PracticeResult`) |
+| **Kết quả** | `/result` | **Thành viên 4** | `PracticeResult` object | 1. Chạm vào từ để xem lỗi âm vị<br>2. Bấm "Luyện lại"<br>3. Bấm "Về trang chủ" | 1. Mở BottomSheet phân tích âm vị<br>2. `/practice` (`lessonId`)<br>3. `/dashboard` (Pop to root) |
+| **Lịch sử** | `/history` | **Nhóm trưởng** | `userId: String` | Bấm vào 1 mục trong danh sách lịch sử | `/result` (mở lại kết quả cũ đã lưu) |
+| **Cài đặt** | `/settings` | **Thành viên 2** | `UserProfile` | 1. Chọn số phút mục tiêu (3-15p)<br>2. Đổi giờ nhắc học (TimePicker)<br>3. Bật/tắt Mock Mode | Lưu cấu hình, quay lại `/dashboard` |
 
 ---
 
@@ -93,17 +94,17 @@
 
 ## 4. Chi Tiết Từng Màn Hình & Trạng Thái Xử Lý
 
-### 4.1. Màn hình Đăng nhập (LoginScreen) - Phụ trách: TV1
+### 4.1. Màn hình Đăng nhập (LoginScreen) - Phụ trách: Nhóm trưởng
 - **Mục tiêu:** Cho phép người dùng đăng nhập bằng tên hoặc tài khoản demo nhanh.
 - **Thành phần UI:**
   - Logo ứng dụng học phát âm AI.
-  - Trường nhập tên người dùng / Chọn profile có sẵn (`usr_dev_01`, `usr_dev_02`).
-  - Nút "Bắt đầu luyện tập".
+  - Chọn profile có sẵn (`usr_dev_01`, `usr_dev_02`).
+  - Nút "Bắt đầu học ngay".
 - **Trạng thái:**
   - `Loading`: Hiển thị vòng xoay tải thông tin người dùng.
   - `Success`: Điều hướng sang `/dashboard`.
 
-### 4.2. Màn hình Tổng quan (DashboardScreen) - Phụ trách: TV2
+### 4.2. Màn hình Tổng quan (DashboardScreen) - Phụ trách: Thành viên 2
 - **Mục tiêu:** Kích hoạt động lực, hiển thị chuỗi ngày học (Streak) và mục tiêu ngày.
 - **Thành phần UI:**
   - Header: Lời chào người dùng + Avatar.
@@ -111,9 +112,8 @@
   - **Daily Goal Progress Card:** Thanh tiến trình tròn hoặc thanh ngang hiển thị `thời gian đã luyện / mục tiêu` (VD: "3/5 phút - Đạt 60%").
   - Nút CTA lớn: "Luyện bài gợi ý hôm nay".
   - Thống kê tuần: Biểu đồ cột nhỏ hiển thị số phút luyện từng ngày trong tuần.
-  - Danh sách 2-3 bài học gần nhất hoặc lịch sử vừa hoàn thành.
 
-### 4.3. Màn hình Danh sách bài học (LessonListScreen) - Phụ trách: TV1
+### 4.3. Màn hình Danh sách bài học (LessonListScreen) - Phụ trách: Nhóm trưởng
 - **Mục tiêu:** Duyệt kho bài học theo cấp độ và chủ đề âm vị.
 - **Thành phần UI:**
   - Thanh tìm kiếm bài học.
@@ -121,7 +121,7 @@
   - Danh sách thẻ bài học (`LessonCard`): Tiêu đề, câu mẫu tiếng Anh, phiên âm IPA, tag âm trọng tâm (VD: `/θ/`, `/ð/`, `/ʃ/`).
   - Trạng thái đã hoàn thành (Icon check xanh và điểm cao nhất đạt được nếu đã từng luyện).
 
-### 4.4. Màn hình Luyện tập (PracticeScreen) - Phụ trách: TV3
+### 4.4. Màn hình Luyện tập (PracticeScreen) - Phụ trách: Thành viên 3
 - **Mục tiêu:** Thu âm giọng nói, đo đạc thời gian học thực tế và kích hoạt AI chấm điểm.
 - **Thành phần UI:**
   - Header: Tiêu đề bài học, cấp độ.
@@ -130,16 +130,14 @@
   - Khu vực thu âm:
     - Nút Micro to ở trung tâm (kèm hiệu ứng sóng âm nhấp nháy khi đang ghi âm).
     - Đồng hồ đếm thời gian thu âm thực tế (`activeDurationSeconds`).
-    - Nút "Nghe lại bản thu" (Review recording).
     - Nút "Gửi chấm điểm AI" (Submit for Evaluation).
 - **Trạng thái:**
   - `Idle`: Chờ người dùng nhấn thu âm.
   - `Recording`: Đang thu âm, đếm giây, chặn thoát màn hình đột ngột.
-  - `Recorded`: Đã thu âm xong, cho phép nghe lại hoặc xóa thu lại.
   - `Analyzing`: Đang gửi âm thanh tới AI (hiển thị hiệu ứng AI đang phân tích âm vị, vô hiệu hóa nút gửi trùng).
   - `Error`: Báo lỗi micro hoặc lỗi AI, hiển thị nút "Thử lại".
 
-### 4.5. Màn hình Kết quả (ResultScreen) - Phụ trách: TV4
+### 4.5. Màn hình Kết quả (ResultScreen) - Phụ trách: Thành viên 4
 - **Mục tiêu:** Trực quan hóa điểm số, phát hiện âm sai và hướng dẫn cải thiện.
 - **Thành phần UI:**
   - **Vòng tròn Điểm Tổng Thể (Overall Score Gauge):** 0 - 100 điểm, chuyển màu linh hoạt (Xanh lá > 80, Vàng 60-79, Đỏ < 60).
@@ -148,20 +146,19 @@
     - Toàn bộ câu được hiển thị từng từ với mã màu (Xanh: chuẩn, Vàng: cần chú ý, Đỏ: sai âm).
     - Chạm vào từng từ sẽ bung ra thẻ chi tiết hiển thị: Phiên âm mong đợi vs Phiên âm thực tế của người dùng (VD: Kỳ vọng `/θɪŋk/` - Thực tế người đọc phát âm `/sɪŋk/`).
   - **Lời khuyên cải thiện phát âm (Feedback & Tips):** Danh sách mẹo đặt khẩu hình môi, răng, lưỡi do AI đề xuất.
-  - Thanh nút điều hướng dưới cùng: Nút "Luyện lại bài này" (Retry) và nút "Bài tiếp theo" / "Về trang chủ".
+  - Thanh nút điều hướng dưới cùng: Nút "Luyện lại bài này" (Retry) và nút "Về trang chủ".
 
-### 4.6. Màn hình Lịch sử (HistoryScreen) - Phụ trách: TV1
+### 4.6. Màn hình Lịch sử (HistoryScreen) - Phụ trách: Nhóm trưởng
 - **Mục tiêu:** Xem lại quá trình rèn luyện theo thời gian.
 - **Thành phần UI:**
   - Danh sách sắp xếp theo ngày giờ mới nhất giảm dần.
   - Mỗi hàng hiển thị: Tên bài, ngày giờ (format giờ địa phương), điểm số, thời lượng luyện tập.
   - Chạm vào hàng bất kỳ $\rightarrow$ Mở `/result` với dữ liệu chi tiết của lượt đó.
 
-### 4.7. Màn hình Cài đặt & Nhắc học (SettingsScreen) - Phụ trách: TV2
+### 4.7. Màn hình Cài đặt & Nhắc học (SettingsScreen) - Phụ trách: Thành viên 2
 - **Mục tiêu:** Cấu hình mục tiêu học tập và thiết lập giờ thông báo nhắc nhở.
 - **Thành phần UI:**
   - Chọn mục tiêu ngày: Chips chọn `3 phút`, `5 phút` (mặc định), `10 phút`, `15 phút`.
   - Công tắc bật/tắt nhắc nhở hàng ngày (Daily Reminder Switch).
   - Khung chọn giờ nhắc nhở (Time Picker, ví dụ `20:00` tối).
   - Công tắc chuyển chế độ dữ liệu: `Sử dụng Dữ liệu giả (Mock Mode)` vs `Dịch vụ AI Thật (Real Mode)`.
-  - Nút lưu cấu hình và khôi phục cài đặt gốc.

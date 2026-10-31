@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Chọn hồ sơ người học (Demo TV1):',
+                                'Chọn hồ sơ người học (Demo):',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,

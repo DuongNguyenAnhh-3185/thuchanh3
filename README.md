@@ -110,12 +110,11 @@ Khi TV3 hoàn thiện tích hợp mô hình AI (Gemini / Whisper / Azure Speech 
 
 ---
 
-## 6. Phân Công Thành Viên & Liên Hệ
+## 6. Phân Công Nhân Sự (4 Thành Viên Bao Gồm Nhóm Trưởng)
 
-| Thành viên | Vai trò | Trách nhiệm chính |
-|---|---|---|
-| **Nhóm trưởng** | Team Lead / Architect | Xây dựng khung dự án, ban hành hợp đồng, kiểm soát PR, điều phối |
-| **Thành viên 1 (TV1)** | Database & Content Dev | Cơ sở dữ liệu SQLite, Màn hình Đăng nhập, Danh sách bài, Lịch sử |
-| **Thành viên 2 (TV2)** | Progress & Motivation Dev | Màn hình Tổng quan, Thuật toán Streak, Thống kê, Nhắc học (Notifications) |
-| **Thành viên 3 (TV3)** | Audio & AI Engine Dev | Thu âm giọng nói, Tích hợp AI so sánh âm vị, Lưu kết quả vào DB |
-| **Thành viên 4 (TV4)** | Feedback UI & QA Lead | Màn hình Kết quả, Trực quan hóa lỗi âm vị, Kế hoạch kiểm thử đa giọng đọc |
+| Thành viên | Vai trò kỹ thuật | Module & Checklist TH3 phụ trách | Màn hình trực tiếp code |
+|---|---|---|---|
+| **Thành viên 1 (Nhóm trưởng)** | Team Lead & Data/Auth Dev | **Mục 1**: Cơ sở dữ liệu SQLite, quản lý User, Lịch sử & Điều phối Git | `/login`, `/lessons`, `/history` |
+| **Thành viên 2** | Progress & Motivation Dev | **Mục 2 & Mục 6**: Đếm Streak, đo thời gian học thực tế, Mục tiêu ngày, Thông báo nhắc học | `/dashboard`, `/settings` |
+| **Thành viên 3** | Audio & AI Engine Dev | **Mục 3 & Mục 4**: Thu âm âm thanh, Tích hợp Speech Recognition & AI so sánh âm vị, Lưu kết quả | `/practice` |
+| **Thành viên 4** | Feedback UI & QA Lead | **Mục 5 & Mục 7**: Vòng tròn điểm số, Trực quan hóa lỗi âm vị IPA, Gợi ý sửa lỗi, Kế hoạch kiểm thử đa giọng nói | `/result` |
