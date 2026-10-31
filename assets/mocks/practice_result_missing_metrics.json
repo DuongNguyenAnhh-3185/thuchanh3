@@ -1,0 +1,63 @@
+{
+  "sessionId": "sess_partial_75",
+  "lessonId": "les_002",
+  "userId": "usr_dev_01",
+  "completedAt": "2026-10-31T08:00:00.000Z",
+  "activeDurationSeconds": 10,
+  "status": "completed",
+  "scores": {
+    "overall": 75.0,
+    "accuracy": null,
+    "fluency": null,
+    "completeness": null
+  },
+  "transcript": "My mother loves warm weather together",
+  "targetText": "My mother loves warm weather together.",
+  "words": [
+    {
+      "word": "My",
+      "ipa": "/maɪ/",
+      "score": 85.0,
+      "status": "correct",
+      "phonemes": []
+    },
+    {
+      "word": "mother",
+      "ipa": "/ˈmʌðər/",
+      "score": 70.0,
+      "status": "warning",
+      "phonemes": []
+    },
+    {
+      "word": "loves",
+      "ipa": "/lʌvz/",
+      "score": 80.0,
+      "status": "correct",
+      "phonemes": []
+    },
+    {
+      "word": "warm",
+      "ipa": "/wɔːrm/",
+      "score": 78.0,
+      "status": "correct",
+      "phonemes": []
+    },
+    {
+      "word": "weather",
+      "ipa": "/ˈwɛðər/",
+      "score": 68.0,
+      "status": "warning",
+      "phonemes": []
+    },
+    {
+      "word": "together",
+      "ipa": "/təˈɡɛðər/",
+      "score": 72.0,
+      "status": "warning",
+      "phonemes": []
+    }
+  ],
+  "feedbackTips": [
+    "Hệ thống chỉ tính được điểm tổng thể. Hãy chú ý các âm hữu thanh /ð/ để phát âm chuẩn xác hơn."
+  ]
+}

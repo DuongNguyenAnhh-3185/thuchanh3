@@ -1,0 +1,35 @@
+[
+  {
+    "sessionId": "sess_gap_03",
+    "lessonId": "les_001",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-31T08:15:00.000Z",
+    "activeDurationSeconds": 310,
+    "status": "completed",
+    "scores": { "overall": 89.0, "accuracy": 88.0, "fluency": 90.0, "completeness": 92.0 },
+    "transcript": "I think this is the right path.",
+    "targetText": "I think this is the right path."
+  },
+  {
+    "sessionId": "sess_gap_02",
+    "lessonId": "les_002",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-28T09:00:00.000Z",
+    "activeDurationSeconds": 320,
+    "status": "completed",
+    "scores": { "overall": 82.0, "accuracy": 80.0, "fluency": 83.0, "completeness": 85.0 },
+    "transcript": "My mother loves warm weather together.",
+    "targetText": "My mother loves warm weather together."
+  },
+  {
+    "sessionId": "sess_gap_01",
+    "lessonId": "les_003",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-27T10:15:00.000Z",
+    "activeDurationSeconds": 315,
+    "status": "completed",
+    "scores": { "overall": 80.0, "accuracy": 79.0, "fluency": 81.0, "completeness": 84.0 },
+    "transcript": "She sells seashells by the seashore.",
+    "targetText": "She sells seashells by the seashore."
+  }
+]

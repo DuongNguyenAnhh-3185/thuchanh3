@@ -1,0 +1,204 @@
+{
+  "sessionId": "sess_high_92",
+  "lessonId": "les_001",
+  "userId": "usr_dev_01",
+  "completedAt": "2026-10-31T09:15:30.000Z",
+  "activeDurationSeconds": 14,
+  "status": "completed",
+  "scores": {
+    "overall": 92.5,
+    "accuracy": 94.0,
+    "fluency": 90.0,
+    "completeness": 95.0
+  },
+  "transcript": "I think this is the right path",
+  "targetText": "I think this is the right path.",
+  "words": [
+    {
+      "word": "I",
+      "ipa": "/aɪ/",
+      "score": 96.0,
+      "status": "correct",
+      "phonemes": [
+        {
+          "phoneme": "aɪ",
+          "ipaExpected": "aɪ",
+          "ipaActual": "aɪ",
+          "score": 96.0,
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "word": "think",
+      "ipa": "/θɪŋk/",
+      "score": 91.0,
+      "status": "correct",
+      "phonemes": [
+        {
+          "phoneme": "θ",
+          "ipaExpected": "θ",
+          "ipaActual": "θ",
+          "score": 90.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "ɪ",
+          "ipaExpected": "ɪ",
+          "ipaActual": "ɪ",
+          "score": 93.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "ŋ",
+          "ipaExpected": "ŋ",
+          "ipaActual": "ŋ",
+          "score": 91.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "k",
+          "ipaExpected": "k",
+          "ipaActual": "k",
+          "score": 90.0,
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "word": "this",
+      "ipa": "/ðɪs/",
+      "score": 93.0,
+      "status": "correct",
+      "phonemes": [
+        {
+          "phoneme": "ð",
+          "ipaExpected": "ð",
+          "ipaActual": "ð",
+          "score": 92.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "ɪ",
+          "ipaExpected": "ɪ",
+          "ipaActual": "ɪ",
+          "score": 95.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "s",
+          "ipaExpected": "s",
+          "ipaActual": "s",
+          "score": 92.0,
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "word": "is",
+      "ipa": "/ɪz/",
+      "score": 95.0,
+      "status": "correct",
+      "phonemes": [
+        {
+          "phoneme": "ɪ",
+          "ipaExpected": "ɪ",
+          "ipaActual": "ɪ",
+          "score": 96.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "z",
+          "ipaExpected": "z",
+          "ipaActual": "z",
+          "score": 94.0,
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "word": "the",
+      "ipa": "/ðə/",
+      "score": 94.0,
+      "status": "correct",
+      "phonemes": [
+        {
+          "phoneme": "ð",
+          "ipaExpected": "ð",
+          "ipaActual": "ð",
+          "score": 93.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "ə",
+          "ipaExpected": "ə",
+          "ipaActual": "ə",
+          "score": 95.0,
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "word": "right",
+      "ipa": "/raɪt/",
+      "score": 92.0,
+      "status": "correct",
+      "phonemes": [
+        {
+          "phoneme": "r",
+          "ipaExpected": "r",
+          "ipaActual": "r",
+          "score": 92.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "aɪ",
+          "ipaExpected": "aɪ",
+          "ipaActual": "aɪ",
+          "score": 94.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "t",
+          "ipaExpected": "t",
+          "ipaActual": "t",
+          "score": 90.0,
+          "isCorrect": true
+        }
+      ]
+    },
+    {
+      "word": "path",
+      "ipa": "/pæθ/",
+      "score": 89.0,
+      "status": "correct",
+      "phonemes": [
+        {
+          "phoneme": "p",
+          "ipaExpected": "p",
+          "ipaActual": "p",
+          "score": 92.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "æ",
+          "ipaExpected": "æ",
+          "ipaActual": "æ",
+          "score": 91.0,
+          "isCorrect": true
+        },
+        {
+          "phoneme": "θ",
+          "ipaExpected": "θ",
+          "ipaActual": "θ",
+          "score": 84.0,
+          "isCorrect": true
+        }
+      ]
+    }
+  ],
+  "feedbackTips": [
+    "Xuất sắc! Các âm khó /θ/ trong 'think' và 'path' được phát âm rất rõ và tự nhiên.",
+    "Tốc độ đọc đều đặn, nhịp điệu tự nhiên, tiếp tục duy trì phong độ!"
+  ]
+}

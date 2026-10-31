@@ -1,0 +1,68 @@
+[
+  {
+    "id": "les_001",
+    "title": "Voiceless TH /θ/ - Think & Thought",
+    "level": "Beginner",
+    "category": "Consonants",
+    "text": "I think this is the right path.",
+    "ipa": "/aɪ θɪŋk ðɪs ɪz ðə raɪt pæθ/",
+    "translationVi": "Tôi nghĩ đây là con đường đúng đắn.",
+    "audioSampleUrl": "https://assets.example.com/audio/les_001.mp3",
+    "targetPhonemes": ["θ", "ð", "p"]
+  },
+  {
+    "id": "les_002",
+    "title": "Voiced TH /ð/ - Weather & Mother",
+    "level": "Beginner",
+    "category": "Consonants",
+    "text": "My mother loves warm weather together.",
+    "ipa": "/maɪ ˈmʌðər lʌvz wɔːrm ˈwɛðər təˈɡɛðər/",
+    "translationVi": "Mẹ tôi thích thời tiết ấm áp khi ở cùng nhau.",
+    "audioSampleUrl": "https://assets.example.com/audio/les_002.mp3",
+    "targetPhonemes": ["ð", "v", "z"]
+  },
+  {
+    "id": "les_003",
+    "title": "Distinguishing /ʃ/ and /s/ - Sea Shells",
+    "level": "Intermediate",
+    "category": "Sibilants",
+    "text": "She sells seashells by the seashore.",
+    "ipa": "/ʃiː sɛlz ˈsiːˌʃɛlz baɪ ðə ˈsiːˌʃɔːr/",
+    "translationVi": "Cô ấy bán vỏ sò bên bờ biển.",
+    "audioSampleUrl": "https://assets.example.com/audio/les_003.mp3",
+    "targetPhonemes": ["ʃ", "s", "z"]
+  },
+  {
+    "id": "les_004",
+    "title": "Ending Sounds /t/ and /d/ - Walked & Decided",
+    "level": "Intermediate",
+    "category": "Past Tense Endings",
+    "text": "We walked home and decided to stay inside.",
+    "ipa": "/wiː wɔːkt hoʊm ænd dɪˈsaɪdɪd tuː steɪ ɪnˈsaɪd/",
+    "translationVi": "Chúng tôi đi bộ về nhà và quyết định ở trong nhà.",
+    "audioSampleUrl": "https://assets.example.com/audio/les_004.mp3",
+    "targetPhonemes": ["kt", "dɪd", "st"]
+  },
+  {
+    "id": "les_005",
+    "title": "Vowel Contrast /iː/ vs /ɪ/ - Sheep vs Ship",
+    "level": "Beginner",
+    "category": "Vowels",
+    "text": "The sheep boarded the big ship peacefully.",
+    "ipa": "/ðə ʃiːp ˈbɔːrdɪd ðə bɪɡ ʃɪp ˈpiːsfəli/",
+    "translationVi": "Đàn cừu lên con tàu lớn một cách bình yên.",
+    "audioSampleUrl": "https://assets.example.com/audio/les_005.mp3",
+    "targetPhonemes": ["iː", "ɪ", "ʃ"]
+  },
+  {
+    "id": "les_006",
+    "title": "Connected Speech & Linking Words",
+    "level": "Advanced",
+    "category": "Fluency & Linking",
+    "text": "Can I have an apple and an orange, please?",
+    "ipa": "/kæn aɪ hæv ən ˈæpəl ænd ən ˈɔːrɪndʒ pliːz/",
+    "translationVi": "Làm ơn cho tôi một quả táo và một quả cam được không?",
+    "audioSampleUrl": "https://assets.example.com/audio/les_006.mp3",
+    "targetPhonemes": ["æ", "dʒ", "pl"]
+  }
+]

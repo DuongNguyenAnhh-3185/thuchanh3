@@ -1,0 +1,37 @@
+{
+  "AUDIO_EMPTY": {
+    "statusCode": 400,
+    "errorCode": "AUDIO_EMPTY",
+    "message": "Không tìm thấy dữ liệu âm thanh trong yêu cầu.",
+    "canRetry": true,
+    "userTip": "Vui lòng giữ nút thu âm và đọc lại câu mẫu."
+  },
+  "SPEECH_NOT_DETECTED": {
+    "statusCode": 422,
+    "errorCode": "SPEECH_NOT_DETECTED",
+    "message": "Không phát hiện thấy tiếng nói người dùng hoặc âm thanh quá ồn.",
+    "canRetry": true,
+    "userTip": "Hãy di chuyển đến không gian yên tĩnh và nói to, rõ ràng hơn."
+  },
+  "AI_TIMEOUT": {
+    "statusCode": 504,
+    "errorCode": "AI_TIMEOUT",
+    "message": "Hết thời gian chờ phản hồi từ dịch vụ AI phân tích âm vị.",
+    "canRetry": true,
+    "userTip": "Hệ thống AI đang bận. Vui lòng bấm 'Thử lại' sau giây lát."
+  },
+  "RATE_LIMIT": {
+    "statusCode": 429,
+    "errorCode": "RATE_LIMIT_EXCEEDED",
+    "message": "Đã vượt quá số lượt gọi AI cho phép trong 1 phút.",
+    "canRetry": false,
+    "userTip": "Bạn đã gửi quá nhanh. Xin vui lòng chờ 30 giây rồi thử lại."
+  },
+  "SERVICE_UNAVAILABLE": {
+    "statusCode": 503,
+    "errorCode": "SERVICE_UNAVAILABLE",
+    "message": "Máy chủ AI đang bảo trì hoặc chưa sẵn sàng.",
+    "canRetry": true,
+    "userTip": "Dịch vụ tạm thời gián đoạn. Bạn có thể bật Chế độ Offline/Mock để tiếp tục học."
+  }
+}

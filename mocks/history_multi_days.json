@@ -1,0 +1,79 @@
+[
+  {
+    "sessionId": "sess_h_07",
+    "lessonId": "les_001",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-31T09:15:30.000Z",
+    "activeDurationSeconds": 320,
+    "status": "completed",
+    "scores": { "overall": 92.5, "accuracy": 94.0, "fluency": 90.0, "completeness": 95.0 },
+    "transcript": "I think this is the right path.",
+    "targetText": "I think this is the right path."
+  },
+  {
+    "sessionId": "sess_h_06",
+    "lessonId": "les_002",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-30T10:20:00.000Z",
+    "activeDurationSeconds": 310,
+    "status": "completed",
+    "scores": { "overall": 88.0, "accuracy": 87.0, "fluency": 89.0, "completeness": 90.0 },
+    "transcript": "My mother loves warm weather together.",
+    "targetText": "My mother loves warm weather together."
+  },
+  {
+    "sessionId": "sess_h_05",
+    "lessonId": "les_003",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-29T14:45:00.000Z",
+    "activeDurationSeconds": 340,
+    "status": "completed",
+    "scores": { "overall": 84.0, "accuracy": 82.0, "fluency": 85.0, "completeness": 88.0 },
+    "transcript": "She sells seashells by the seashore.",
+    "targetText": "She sells seashells by the seashore."
+  },
+  {
+    "sessionId": "sess_h_04",
+    "lessonId": "les_004",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-28T08:10:00.000Z",
+    "activeDurationSeconds": 305,
+    "status": "completed",
+    "scores": { "overall": 79.0, "accuracy": 78.0, "fluency": 80.0, "completeness": 85.0 },
+    "transcript": "We walked home and decided to stay inside.",
+    "targetText": "We walked home and decided to stay inside."
+  },
+  {
+    "sessionId": "sess_h_03",
+    "lessonId": "les_005",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-27T19:30:00.000Z",
+    "activeDurationSeconds": 315,
+    "status": "completed",
+    "scores": { "overall": 91.0, "accuracy": 90.0, "fluency": 92.0, "completeness": 93.0 },
+    "transcript": "The sheep boarded the big ship peacefully.",
+    "targetText": "The sheep boarded the big ship peacefully."
+  },
+  {
+    "sessionId": "sess_h_02",
+    "lessonId": "les_006",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-26T11:00:00.000Z",
+    "activeDurationSeconds": 330,
+    "status": "completed",
+    "scores": { "overall": 85.0, "accuracy": 83.0, "fluency": 87.0, "completeness": 89.0 },
+    "transcript": "Can I have an apple and an orange, please?",
+    "targetText": "Can I have an apple and an orange, please?"
+  },
+  {
+    "sessionId": "sess_h_01",
+    "lessonId": "les_001",
+    "userId": "usr_dev_01",
+    "completedAt": "2026-10-25T15:20:00.000Z",
+    "activeDurationSeconds": 300,
+    "status": "completed",
+    "scores": { "overall": 76.0, "accuracy": 74.0, "fluency": 78.0, "completeness": 80.0 },
+    "transcript": "I sink this is the right pat.",
+    "targetText": "I think this is the right path."
+  }
+]

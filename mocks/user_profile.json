@@ -1,0 +1,14 @@
+{
+  "id": "usr_dev_01",
+  "name": "Nguyễn Văn A",
+  "email": "nguyenvana@example.com",
+  "avatarUrl": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150",
+  "streakCount": 5,
+  "lastPracticeDate": "2026-10-31",
+  "dailyGoalMinutes": 5,
+  "reminderTime": "20:00",
+  "isReminderEnabled": true,
+  "level": "Intermediate",
+  "totalSessions": 28,
+  "totalActiveMinutes": 142
+}

@@ -1,0 +1,20 @@
+{
+  "sessionId": "sess_empty_00",
+  "lessonId": "les_003",
+  "userId": "usr_dev_01",
+  "completedAt": "2026-10-31T07:30:00.000Z",
+  "activeDurationSeconds": 4,
+  "status": "completed",
+  "scores": {
+    "overall": null,
+    "accuracy": null,
+    "fluency": null,
+    "completeness": null
+  },
+  "transcript": "",
+  "targetText": "She sells seashells by the seashore.",
+  "words": [],
+  "feedbackTips": [
+    "Không nhận diện được giọng nói trong bản ghi âm. Vui lòng kiểm tra micro và đọc to rõ ràng hơn."
+  ]
+}
