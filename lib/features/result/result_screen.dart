@@ -8,6 +8,14 @@ class ResultScreen extends StatelessWidget {
 
   const ResultScreen({super.key, required this.args});
 
+  void _goToDashboard(BuildContext context) {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.dashboard,
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final result = args.result;
@@ -34,12 +42,7 @@ class ResultScreen extends StatelessWidget {
         title: const Text('Kết Quả Đánh Giá Phát Âm'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.popUntil(
-              context,
-              ModalRoute.withName(AppRoutes.dashboard),
-            );
-          },
+          onPressed: () => _goToDashboard(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -252,12 +255,7 @@ class ResultScreen extends StatelessWidget {
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.home_rounded),
                     label: const Text('Về Trang chủ'),
-                    onPressed: () {
-                      Navigator.popUntil(
-                        context,
-                        ModalRoute.withName(AppRoutes.dashboard),
-                      );
-                    },
+                    onPressed: () => _goToDashboard(context),
                   ),
                 ),
               ],

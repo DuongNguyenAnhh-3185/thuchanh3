@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/services/service_locator.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/user_profile.dart';
@@ -28,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     final user = await _services.authRepo.getCurrentUser();
+    if (!mounted) return;
     setState(() {
       _user = user;
       _selectedGoal = user.dailyGoalMinutes;
@@ -36,27 +38,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _isMockMode = _services.isMockMode;
       _isLoading = false;
     });
+
+    if (_isReminderEnabled) {
+      try {
+        await _services.reminderService.scheduleDailyReminder(
+          timeString: _reminderTime,
+        );
+      } catch (_) {}
+    } else {
+      try {
+        await _services.reminderService.cancelDailyReminder();
+      } catch (_) {}
+    }
   }
 
   Future<void> _saveSettings() async {
     if (_user == null) return;
-    final updated = _user!.copyWith(
-      dailyGoalMinutes: _selectedGoal,
-      reminderTime: _reminderTime,
-      isReminderEnabled: _isReminderEnabled,
-    );
-    await _services.authRepo.updateProfile(updated);
-    await _services.streakRepo.updateDailyGoal(_user!.id, _selectedGoal);
-
-    if (_isReminderEnabled) {
-      await _services.reminderService.scheduleDailyReminder(timeString: _reminderTime);
-    } else {
-      await _services.reminderService.cancelDailyReminder();
+    if (_selectedGoal <= 0 || !_isValidReminderTime(_reminderTime)) {
+      _showError('Vui lòng chọn mục tiêu và thời gian nhắc hợp lệ.');
+      return;
     }
 
-    _services.isMockMode = _isMockMode;
+    setState(() => _isLoading = true);
+    try {
+      final updated = _user!.copyWith(
+        dailyGoalMinutes: _selectedGoal,
+        reminderTime: _reminderTime,
+        isReminderEnabled: _isReminderEnabled,
+      );
+      await _services.authRepo.updateProfile(updated);
+      await _services.streakRepo.updateDailyGoal(_user!.id, _selectedGoal);
 
-    if (mounted) {
+      if (_isReminderEnabled) {
+        await _services.reminderService.scheduleDailyReminder(
+          timeString: _reminderTime,
+        );
+      } else {
+        await _services.reminderService.cancelDailyReminder();
+      }
+
+      _services.isMockMode = _isMockMode;
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Đã lưu cấu hình học tập và thông báo thành công!'),
@@ -64,17 +88,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
       Navigator.pop(context);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showError(
+        'Đã lưu cài đặt nhưng chưa lên lịch được thông báo. '
+        'Hãy kiểm tra quyền thông báo trên thiết bị.',
+      );
     }
   }
 
   Future<void> _pickReminderTime() async {
     final parts = _reminderTime.split(':');
-    final initialHour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 20 : 20;
-    final initialMinute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+    final initialHour =
+        (parts.isNotEmpty ? int.tryParse(parts[0]) : null) ?? 20;
+    final initialMinute =
+        (parts.length > 1 ? int.tryParse(parts[1]) : null) ?? 0;
 
     final picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(hour: initialHour, minute: initialMinute),
+      initialTime: TimeOfDay(
+        hour: initialHour < 0 ? 0 : (initialHour > 23 ? 23 : initialHour),
+        minute: initialMinute < 0
+            ? 0
+            : (initialMinute > 59 ? 59 : initialMinute),
+      ),
     );
 
     if (picked != null) {
@@ -86,18 +124,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  bool _isValidReminderTime(String value) {
+    final match = RegExp(r'^(\d{2}):(\d{2})$').firstMatch(value);
+    if (match == null) return false;
+    final hour = int.parse(match.group(1)!);
+    final minute = int.parse(match.group(2)!);
+    return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59;
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppTheme.errorRed),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _user == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cài Đặt & Nhắc Học'),
-      ),
+      appBar: AppBar(title: const Text('Cài Đặt & Nhắc Học')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
@@ -112,11 +160,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.flag_rounded, color: AppTheme.accentIndigo, size: 22),
+                        Icon(
+                          Icons.flag_rounded,
+                          color: AppTheme.accentIndigo,
+                          size: 22,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'Mục tiêu luyện tập mỗi ngày',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ],
                     ),
@@ -135,7 +190,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           selected: isSelected,
                           selectedColor: AppTheme.accentIndigo,
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.textMain,
+                            color: isSelected
+                                ? Colors.white
+                                : AppTheme.textMain,
                             fontWeight: FontWeight.w700,
                           ),
                           onSelected: (selected) {
@@ -162,11 +219,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.notifications_active_rounded, color: AppTheme.secondaryTeal, size: 22),
+                            Icon(
+                              Icons.notifications_active_rounded,
+                              color: AppTheme.secondaryTeal,
+                              size: 22,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Nhắc nhở học tập hàng ngày',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ],
                         ),
@@ -191,13 +255,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           const Text(
                             'Giờ gửi thông báo:',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           OutlinedButton.icon(
-                            icon: const Icon(Icons.access_time_rounded, size: 18),
+                            icon: const Icon(
+                              Icons.access_time_rounded,
+                              size: 18,
+                            ),
                             label: Text(
                               _reminderTime,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             onPressed: _pickReminderTime,
                           ),
@@ -219,11 +292,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     const Row(
                       children: [
-                        Icon(Icons.tune_rounded, color: AppTheme.warningAmber, size: 22),
+                        Icon(
+                          Icons.tune_rounded,
+                          color: AppTheme.warningAmber,
+                          size: 22,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'Cấu hình Dịch vụ AI & Dữ liệu',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ],
                     ),
@@ -232,11 +312,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       contentPadding: EdgeInsets.zero,
                       title: const Text(
                         'Chế độ Mock Dữ liệu mẫu (Khuyên dùng)',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       subtitle: const Text(
                         'Chạy mượt mà offline với kho bài học và bộ kết quả âm vị mẫu.',
-                        style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                       value: _isMockMode,
                       activeColor: AppTheme.warningAmber,

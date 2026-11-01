@@ -1,6 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../models/daily_progress.dart';
@@ -10,6 +12,9 @@ import '../models/user_profile.dart';
 import 'contracts.dart';
 
 class MockAuthRepository implements AuthRepository {
+  static const _currentUserKey = 'current_user_profile';
+  bool _initialized = false;
+
   UserProfile _currentUser = UserProfile(
     id: 'usr_dev_01',
     name: 'Nguyễn Văn A',
@@ -54,32 +59,77 @@ class MockAuthRepository implements AuthRepository {
     ),
   ];
 
+  Future<void> _ensureInitialized() async {
+    if (_initialized) return;
+
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final savedProfile = preferences.getString(_currentUserKey);
+      if (savedProfile != null) {
+        _currentUser = UserProfile.fromJson(
+          json.decode(savedProfile) as Map<String, dynamic>,
+        );
+        final index = _availableUsers.indexWhere(
+          (u) => u.id == _currentUser.id,
+        );
+        if (index >= 0) {
+          _availableUsers[index] = _currentUser;
+        }
+      }
+    } catch (_) {
+      // Fall back to the demo profile if local storage is unavailable.
+    }
+    _initialized = true;
+  }
+
   @override
   Future<UserProfile> getCurrentUser() async {
+    await _ensureInitialized();
     return _currentUser;
   }
 
   @override
   Future<void> updateProfile(UserProfile profile) async {
+    await _ensureInitialized();
     _currentUser = profile;
     final index = _availableUsers.indexWhere((u) => u.id == profile.id);
     if (index >= 0) {
       _availableUsers[index] = profile;
     }
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        _currentUserKey,
+        json.encode(profile.toJson()),
+      );
+    } catch (_) {
+      // Keep the in-memory update even if persistence is unavailable.
+    }
   }
 
   @override
   Future<List<UserProfile>> getAvailableUsers() async {
+    await _ensureInitialized();
     return _availableUsers;
   }
 
   @override
   Future<void> switchUser(String userId) async {
+    await _ensureInitialized();
     final user = _availableUsers.firstWhere(
       (u) => u.id == userId,
       orElse: () => _availableUsers.first,
     );
     _currentUser = user;
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        _currentUserKey,
+        json.encode(_currentUser.toJson()),
+      );
+    } catch (_) {
+      // Keep the in-memory switch even if persistence is unavailable.
+    }
   }
 }
 
@@ -93,9 +143,13 @@ class MockLessonRepository implements LessonRepository {
     }
 
     try {
-      final jsonString = await rootBundle.loadString(AppConstants.mockLessonsPath);
+      final jsonString = await rootBundle.loadString(
+        AppConstants.mockLessonsPath,
+      );
       final List<dynamic> list = json.decode(jsonString);
-      _cachedLessons = list.map((item) => Lesson.fromJson(item as Map<String, dynamic>)).toList();
+      _cachedLessons = list
+          .map((item) => Lesson.fromJson(item as Map<String, dynamic>))
+          .toList();
       return _cachedLessons!;
     } catch (_) {
       // Fallback data if bundle loading fails
@@ -141,7 +195,9 @@ class MockLessonRepository implements LessonRepository {
   Future<List<Lesson>> getLessonsByLevel(String level) async {
     final all = await getLessons();
     if (level.isEmpty || level == 'All') return all;
-    return all.where((l) => l.level.toLowerCase() == level.toLowerCase()).toList();
+    return all
+        .where((l) => l.level.toLowerCase() == level.toLowerCase())
+        .toList();
   }
 }
 
@@ -152,7 +208,9 @@ class MockPracticeRepository implements PracticeRepository {
   Future<void> _ensureInitialized() async {
     if (_initialized) return;
     try {
-      final jsonString = await rootBundle.loadString(AppConstants.mockHistoryMultiPath);
+      final jsonString = await rootBundle.loadString(
+        AppConstants.mockHistoryMultiPath,
+      );
       final List<dynamic> list = json.decode(jsonString);
       for (final item in list) {
         _sessions.add(PracticeResult.fromJson(item as Map<String, dynamic>));
@@ -164,10 +222,18 @@ class MockPracticeRepository implements PracticeRepository {
           sessionId: 'sess_init_01',
           lessonId: 'les_001',
           userId: 'usr_dev_01',
-          completedAt: DateTime.now().subtract(const Duration(hours: 2)).toUtc().toIso8601String(),
+          completedAt: DateTime.now()
+              .subtract(const Duration(hours: 2))
+              .toUtc()
+              .toIso8601String(),
           activeDurationSeconds: 15,
           status: 'completed',
-          scores: ScoreBreakdown(overall: 92.5, accuracy: 94.0, fluency: 90.0, completeness: 95.0),
+          scores: ScoreBreakdown(
+            overall: 92.5,
+            accuracy: 94.0,
+            fluency: 90.0,
+            completeness: 95.0,
+          ),
           transcript: 'I think this is the right path',
           targetText: 'I think this is the right path.',
           words: [],
@@ -203,7 +269,9 @@ class MockPracticeRepository implements PracticeRepository {
   @override
   Future<List<PracticeResult>> getHistory(String userId) async {
     await _ensureInitialized();
-    return List.unmodifiable(_sessions);
+    return List.unmodifiable(
+      _sessions.where((session) => session.userId == userId),
+    );
   }
 }
 
@@ -214,28 +282,47 @@ class MockStreakProgressRepository implements StreakProgressRepository {
   MockStreakProgressRepository({
     required PracticeRepository practiceRepo,
     required AuthRepository authRepo,
-  })  : _practiceRepo = practiceRepo,
-        _authRepo = authRepo;
+  }) : _practiceRepo = practiceRepo,
+       _authRepo = authRepo;
+
+  DateTime _dateOnly(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  String _dateKey(DateTime date) => DateFormat('yyyy-MM-dd').format(date);
+
+  Future<Map<String, int>> _getDurationByDate(String userId) async {
+    final history = await _practiceRepo.getHistory(userId);
+    final durationByDate = <String, int>{};
+
+    for (final session in history) {
+      if (session.status != 'completed' || session.activeDurationSeconds <= 0) {
+        continue;
+      }
+
+      final date = DateTime.tryParse(session.completedAt)?.toLocal();
+      if (date == null) continue;
+
+      final key = _dateKey(date);
+      durationByDate[key] =
+          (durationByDate[key] ?? 0) + session.activeDurationSeconds;
+    }
+    return durationByDate;
+  }
 
   @override
   Future<DailyProgress> getTodayProgress(String userId) async {
     final user = await _authRepo.getCurrentUser();
     final history = await _practiceRepo.getHistory(userId);
-    final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-    int todayActiveSeconds = 0;
-    int practiceCount = 0;
-
-    for (final session in history) {
-      final sessionDate = DateTime.tryParse(session.completedAt)?.toLocal();
-      if (sessionDate != null) {
-        final sessionDateStr = DateFormat('yyyy-MM-dd').format(sessionDate);
-        if (sessionDateStr == todayStr) {
-          todayActiveSeconds += session.activeDurationSeconds;
-          practiceCount++;
-        }
-      }
-    }
+    final todayStr = _dateKey(DateTime.now());
+    final durationByDate = await _getDurationByDate(userId);
+    final todayActiveSeconds = durationByDate[todayStr] ?? 0;
+    final practiceCount = history.where((session) {
+      final date = DateTime.tryParse(session.completedAt)?.toLocal();
+      return session.status == 'completed' &&
+          session.activeDurationSeconds > 0 &&
+          date != null &&
+          _dateKey(date) == todayStr;
+    }).length;
 
     final targetSeconds = user.dailyGoalMinutes * 60;
     return DailyProgress(
@@ -250,26 +337,24 @@ class MockStreakProgressRepository implements StreakProgressRepository {
   @override
   Future<List<DailyProgress>> getWeeklyProgress(String userId) async {
     final user = await _authRepo.getCurrentUser();
+    final durationByDate = await _getDurationByDate(userId);
     final history = await _practiceRepo.getHistory(userId);
     final targetSeconds = user.dailyGoalMinutes * 60;
 
-    final now = DateTime.now();
+    final now = _dateOnly(DateTime.now());
     final List<DailyProgress> weekly = [];
 
     for (int i = 6; i >= 0; i--) {
       final day = now.subtract(Duration(days: i));
-      final dayStr = DateFormat('yyyy-MM-dd').format(day);
-
-      int activeSeconds = 0;
-      int count = 0;
-
-      for (final s in history) {
-        final d = DateTime.tryParse(s.completedAt)?.toLocal();
-        if (d != null && DateFormat('yyyy-MM-dd').format(d) == dayStr) {
-          activeSeconds += s.activeDurationSeconds;
-          count++;
-        }
-      }
+      final dayStr = _dateKey(day);
+      final activeSeconds = durationByDate[dayStr] ?? 0;
+      final count = history.where((session) {
+        final date = DateTime.tryParse(session.completedAt)?.toLocal();
+        return session.status == 'completed' &&
+            session.activeDurationSeconds > 0 &&
+            date != null &&
+            _dateKey(date) == dayStr;
+      }).length;
 
       weekly.add(
         DailyProgress(
@@ -293,29 +378,29 @@ class MockStreakProgressRepository implements StreakProgressRepository {
   @override
   Future<int> recalculateStreak(String userId) async {
     final user = await _authRepo.getCurrentUser();
-    final history = await _practiceRepo.getHistory(userId);
     final targetSeconds = user.dailyGoalMinutes * 60;
 
-    // Group active duration by local date
-    final Map<String, int> durationByDate = {};
-    for (final s in history) {
-      final d = DateTime.tryParse(s.completedAt)?.toLocal();
-      if (d != null) {
-        final dateKey = DateFormat('yyyy-MM-dd').format(d);
-        durationByDate[dateKey] = (durationByDate[dateKey] ?? 0) + s.activeDurationSeconds;
+    if (targetSeconds <= 0) {
+      if (user.streakCount != 0) {
+        await _authRepo.updateProfile(user.copyWith(streakCount: 0));
       }
+      return 0;
     }
 
+    final durationByDate = await _getDurationByDate(userId);
+
     int streak = 0;
-    final today = DateTime.now();
-    final todayKey = DateFormat('yyyy-MM-dd').format(today);
+    final today = _dateOnly(DateTime.now());
+    final todayKey = _dateKey(today);
 
     // Check if today reached goal
     bool startFromToday = (durationByDate[todayKey] ?? 0) >= targetSeconds;
-    DateTime checkDay = startFromToday ? today : today.subtract(const Duration(days: 1));
+    DateTime checkDay = startFromToday
+        ? today
+        : today.subtract(const Duration(days: 1));
 
     while (true) {
-      final key = DateFormat('yyyy-MM-dd').format(checkDay);
+      final key = _dateKey(checkDay);
       final seconds = durationByDate[key] ?? 0;
       if (seconds >= targetSeconds) {
         streak++;
@@ -347,7 +432,9 @@ class MockSpeechAiService implements SpeechAiService {
     await Future.delayed(const Duration(milliseconds: 1200));
 
     if (simulateError) {
-      throw Exception('SPEECH_NOT_DETECTED: Không nhận diện được giọng nói trong bản thu âm.');
+      throw Exception(
+        'SPEECH_NOT_DETECTED: Không nhận diện được giọng nói trong bản thu âm.',
+      );
     }
 
     final path = simulateLowScore
@@ -372,7 +459,12 @@ class MockSpeechAiService implements SpeechAiService {
         completedAt: DateTime.now().toUtc().toIso8601String(),
         activeDurationSeconds: activeDurationSeconds,
         status: 'completed',
-        scores: ScoreBreakdown(overall: 92.0, accuracy: 94.0, fluency: 90.0, completeness: 95.0),
+        scores: ScoreBreakdown(
+          overall: 92.0,
+          accuracy: 94.0,
+          fluency: 90.0,
+          completeness: 95.0,
+        ),
         transcript: targetText,
         targetText: targetText,
         words: [
@@ -388,9 +480,9 @@ class MockSpeechAiService implements SpeechAiService {
                 ipaActual: 'θ',
                 score: 91.0,
                 isCorrect: true,
-              )
+              ),
             ],
-          )
+          ),
         ],
         feedbackTips: ['Phát âm rất chuẩn! Tiếp tục duy trì phong độ.'],
       );
@@ -419,7 +511,8 @@ class MockAudioRecordingService implements AudioRecordingService {
         : 5;
     final duration = elapsed < 1 ? 1 : elapsed;
     return AudioRecordResult(
-      filePath: '/mock/storage/records/recording_${DateTime.now().millisecondsSinceEpoch}.wav',
+      filePath:
+          '/mock/storage/records/recording_${DateTime.now().millisecondsSinceEpoch}.wav',
       durationSeconds: duration,
     );
   }

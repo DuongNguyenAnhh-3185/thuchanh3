@@ -1,5 +1,6 @@
 import '../../data/repositories/contracts.dart';
 import '../../data/repositories/mock_repositories.dart';
+import 'local_reminder_notification_service.dart';
 
 class AppServices {
   static final AppServices _instance = AppServices._internal();
@@ -27,6 +28,8 @@ class AppServices {
     );
     speechAiService = MockSpeechAiService();
     audioRecordingService = MockAudioRecordingService();
-    reminderService = MockReminderNotificationService();
+    reminderService = useMock
+        ? MockReminderNotificationService()
+        : LocalReminderNotificationService();
   }
 }

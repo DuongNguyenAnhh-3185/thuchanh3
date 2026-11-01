@@ -16,7 +16,7 @@ class DailyProgress {
   double get progressRatio {
     if (targetSeconds <= 0) return 0.0;
     final ratio = activeSeconds / targetSeconds;
-    return ratio > 1.0 ? 1.0 : ratio;
+    return ratio.clamp(0.0, 1.0).toDouble();
   }
 
   factory DailyProgress.fromJson(Map<String, dynamic> json) {

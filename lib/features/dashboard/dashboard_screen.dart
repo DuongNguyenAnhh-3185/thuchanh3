@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/routes/app_routes.dart';
 import '../../core/services/service_locator.dart';
 import '../../core/theme/app_theme.dart';
@@ -33,6 +34,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final today = await _services.streakRepo.getTodayProgress(user.id);
     final weekly = await _services.streakRepo.getWeeklyProgress(user.id);
 
+    if (!mounted) return;
+
     setState(() {
       _user = updatedUser;
       _todayProgress = today;
@@ -44,9 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading || _user == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final activeMinutes = (_todayProgress?.activeSeconds ?? 0) ~/ 60;
@@ -75,16 +76,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
             tooltip: 'Lịch sử luyện tập',
             icon: const Icon(Icons.history_rounded),
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.history)
-                  .then((_) => _loadDashboardData());
+              Navigator.pushNamed(
+                context,
+                AppRoutes.history,
+              ).then((_) => _loadDashboardData());
             },
           ),
           IconButton(
             tooltip: 'Cài đặt & Nhắc học',
             icon: const Icon(Icons.settings_outlined),
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.settings)
-                  .then((_) => _loadDashboardData());
+              Navigator.pushNamed(
+                context,
+                AppRoutes.settings,
+              ).then((_) => _loadDashboardData());
             },
           ),
         ],
@@ -140,8 +145,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: const Icon(Icons.library_books_rounded, size: 20),
                 label: const Text('Xem toàn bộ danh sách bài học'),
                 onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.lessons)
-                      .then((_) => _loadDashboardData());
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.lessons,
+                  ).then((_) => _loadDashboardData());
                 },
               ),
               const SizedBox(height: 24),
@@ -184,10 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               shape: BoxShape.circle,
             ),
             child: const Center(
-              child: Text(
-                '🔥',
-                style: TextStyle(fontSize: 34),
-              ),
+              child: Text('🔥', style: TextStyle(fontSize: 34)),
             ),
           ),
           const SizedBox(width: 16),
@@ -256,7 +260,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.timer_outlined, size: 20, color: AppTheme.accentIndigo),
+                    Icon(
+                      Icons.timer_outlined,
+                      size: 20,
+                      color: AppTheme.accentIndigo,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'Mục tiêu học hôm nay',
@@ -269,7 +277,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isGoalMet
                         ? AppTheme.successGreen.withOpacity(0.12)
@@ -281,7 +292,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: isGoalMet ? AppTheme.successGreen : AppTheme.warningAmber,
+                      color: isGoalMet
+                          ? AppTheme.successGreen
+                          : AppTheme.warningAmber,
                     ),
                   ),
                 ),
@@ -296,12 +309,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: const TextStyle(color: AppTheme.textMain),
                     children: [
                       TextSpan(
-                        text: '$activeMinutes:${activeSeconds.toString().padLeft(2, '0')} ',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+                        text:
+                            '$activeMinutes:${activeSeconds.toString().padLeft(2, '0')} ',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                       TextSpan(
                         text: '/ $goalMinutes phút',
-                        style: const TextStyle(fontSize: 15, color: AppTheme.textMuted),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: AppTheme.textMuted,
+                        ),
                       ),
                     ],
                   ),
@@ -331,7 +351,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 8),
             const Text(
               '* Chỉ tính thời gian luyện tập thực tế, không tính thời gian chờ mạng hay AI.',
-              style: TextStyle(fontSize: 11, color: AppTheme.textMuted, fontStyle: FontStyle.italic),
+              style: TextStyle(
+                fontSize: 11,
+                color: AppTheme.textMuted,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ),
@@ -351,11 +375,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.bar_chart_rounded, size: 20, color: AppTheme.secondaryTeal),
+                    Icon(
+                      Icons.bar_chart_rounded,
+                      size: 20,
+                      color: AppTheme.secondaryTeal,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'Thống kê 7 ngày qua',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -371,7 +402,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: weekly.map((day) {
                 final dateParts = day.date.split('-');
-                final label = dateParts.length >= 3 ? '${dateParts[2]}/${dateParts[1]}' : day.date;
+                final label = dateParts.length >= 3
+                    ? '${dateParts[2]}/${dateParts[1]}'
+                    : day.date;
                 final minutes = (day.activeSeconds / 60).toStringAsFixed(1);
                 final height = (day.progressRatio * 60).clamp(6.0, 60.0);
 
@@ -379,7 +412,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     Text(
                       '${minutes}p',
-                      style: const TextStyle(fontSize: 10, color: AppTheme.textMuted),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppTheme.textMuted,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Container(
@@ -389,15 +425,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         color: day.isGoalReached
                             ? AppTheme.successGreen
                             : (day.activeSeconds > 0
-                                ? AppTheme.accentIndigo.withOpacity(0.6)
-                                : const Color(0xFFE2E8F0)),
+                                  ? AppTheme.accentIndigo.withOpacity(0.6)
+                                  : const Color(0xFFE2E8F0)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       label,
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 );

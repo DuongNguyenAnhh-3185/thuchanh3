@@ -15,7 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize service locator with mock services by default
-  AppServices().initialize(useMock: true);
+  AppServices().initialize(useMock: false);
 
   runApp(const AiPronunciationApp());
 }
