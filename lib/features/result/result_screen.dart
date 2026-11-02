@@ -309,12 +309,14 @@ class ResultScreen extends StatelessWidget {
   void _showPhonemeDetails(BuildContext context, WordEvaluation wordEval) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,6 +422,7 @@ class ResultScreen extends StatelessWidget {
                 }),
               const SizedBox(height: 12),
             ],
+            ),
           ),
         );
       },

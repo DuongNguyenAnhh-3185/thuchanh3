@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/services/service_locator.dart';
 import '../../core/theme/app_theme.dart';
@@ -16,6 +17,7 @@ class PracticeScreen extends StatefulWidget {
 
 class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProviderStateMixin {
   final _services = AppServices();
+  final _textToSpeech = FlutterTts();
   Lesson? _lesson;
   bool _isLoadingLesson = true;
 
@@ -27,6 +29,7 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
 
   // AI Evaluation state
   bool _isEvaluating = false;
+  bool _isPlayingSample = false;
   String? _errorMessage;
 
   // Testing switches for TV3 / QA
@@ -53,6 +56,10 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
   @override
   void dispose() {
     _timer?.cancel();
+    if (_isRecording) {
+      unawaited(_services.audioRecordingService.cancelRecording());
+    }
+    unawaited(_textToSpeech.stop());
     _pulseController.dispose();
     super.dispose();
   }
@@ -72,34 +79,58 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
     });
   }
 
-  void _startRecording() async {
+  Future<void> _startRecording() async {
     setState(() {
-      _isRecording = true;
-      _activeSeconds = 0;
       _errorMessage = null;
       _recordedFilePath = null;
+      _activeSeconds = 0;
     });
 
-    await _services.audioRecordingService.startRecording();
-
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() => _activeSeconds++);
+    try {
+      await _services.audioRecordingService.startRecording();
+      if (!mounted) {
+        await _services.audioRecordingService.cancelRecording();
+        return;
       }
-    });
+      setState(() => _isRecording = true);
+      _timer?.cancel();
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (mounted) {
+          setState(() => _activeSeconds++);
+        }
+      });
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+          _errorMessage = 'Không thể bắt đầu thu âm: ${_friendlyError(error)}';
+        });
+      }
+    }
   }
 
-  void _stopRecording() async {
+  Future<void> _stopRecording() async {
     _timer?.cancel();
-    final result = await _services.audioRecordingService.stopRecording();
-    setState(() {
-      _isRecording = false;
-      _recordedFilePath = result.filePath;
-      if (result.durationSeconds > 0) {
+    try {
+      final result = await _services.audioRecordingService.stopRecording();
+      if (!mounted) return;
+      setState(() {
+        _isRecording = false;
+        _recordedFilePath = result.filePath;
         _activeSeconds = result.durationSeconds;
+        if (result.durationSeconds < 1) {
+          _errorMessage = 'Bản thu quá ngắn. Hãy đọc hết câu rồi thử lại nhé.';
+        }
+      });
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _isRecording = false;
+          _recordedFilePath = null;
+          _errorMessage = 'Không thể lưu bản thu: ${_friendlyError(error)}';
+        });
       }
-    });
+    }
   }
 
   Future<void> _submitForEvaluation() async {
@@ -160,19 +191,40 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
     }
   }
 
-  void _playSampleAudio() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.volume_up, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Text('Đang phát âm thanh mẫu: "${_lesson?.text}"'),
-          ],
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  String _friendlyError(Object error) =>
+      error.toString().replaceFirst('Bad state: ', '').replaceFirst('Exception: ', '');
+
+  Future<void> _playSampleAudio() async {
+    final text = _lesson?.text;
+    if (text == null || text.isEmpty || _isPlayingSample) return;
+
+    setState(() => _isPlayingSample = true);
+    try {
+      await _textToSpeech.awaitSpeakCompletion(true);
+      await _textToSpeech.getVoices;
+      await _textToSpeech.setLanguage('en-US');
+      await _textToSpeech.setSpeechRate(0.42);
+      await _textToSpeech.setVolume(1.0);
+      final result = await _textToSpeech.speak(text);
+      // Web TTS resolves to null after utterance completion; native plugins
+      // return 1 when speaking succeeds.
+      if (result != null && result != 1) {
+        throw StateError('Thiết bị không có giọng đọc English khả dụng.');
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Không phát được giọng mẫu: ${_friendlyError(error)}. '
+              'Hãy kiểm tra/cài giọng English trong cài đặt TTS của thiết bị.',
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPlayingSample = false);
+    }
   }
 
   @override
@@ -255,8 +307,13 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
-                      icon: const Icon(Icons.volume_up_rounded, size: 20),
-                      label: const Text('Nghe người bản xứ đọc mẫu'),
+                      icon: Icon(
+                        _isPlayingSample
+                            ? Icons.volume_up_rounded
+                            : Icons.play_arrow_rounded,
+                        size: 20,
+                      ),
+                      label: const Text('Nghe giọng đọc mẫu'),
                       onPressed: _playSampleAudio,
                     ),
                   ],
