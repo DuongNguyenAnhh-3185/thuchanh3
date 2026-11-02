@@ -7,6 +7,7 @@ import '../models/daily_progress.dart';
 import '../models/lesson.dart';
 import '../models/practice_result.dart';
 import '../models/user_profile.dart';
+import '../services/phoneme_ai_evaluator.dart';
 import 'contracts.dart';
 
 class MockAuthRepository implements AuthRepository {
@@ -354,57 +355,50 @@ class MockSpeechAiService implements SpeechAiService {
     required int activeDurationSeconds,
     bool simulateError = false,
     bool simulateLowScore = false,
+    String? spokenText,
   }) async {
-    // Simulate AI processing network delay (1.2s)
-    await Future.delayed(const Duration(milliseconds: 1200));
+    // Giả lập độ trễ mạng AI xử lý (1.0 giây)
+    await Future.delayed(const Duration(milliseconds: 1000));
 
     if (simulateError) {
       throw Exception('SPEECH_NOT_DETECTED: Không nhận diện được giọng nói trong bản thu âm.');
     }
 
-    final path = simulateLowScore
-        ? AppConstants.mockResultLowPath
-        : AppConstants.mockResultHighPath;
+    // Nếu có cờ simulateLowScore hoặc có spokenText thực tế từ Microphone/STT:
+    // Chạy thuật toán AI Phoneme Evaluation & Levenshtein Distance!
+    if (simulateLowScore || (spokenText != null && spokenText.trim().isNotEmpty)) {
+      return PhonemeAiEvaluator.evaluate(
+        targetText: targetText,
+        expectedIpa: expectedIpa,
+        spokenText: (spokenText != null && spokenText.trim().isNotEmpty)
+            ? spokenText
+            : targetText,
+        lessonId: lessonId,
+        activeDurationSeconds: activeDurationSeconds,
+        simulateLowScore: simulateLowScore,
+      );
+    }
+
+    // Fallback: nếu không có spokenText (chạy mô phỏng không có mic), nạp từ asset mock hoặc sinh tự động
+    final path = AppConstants.mockResultHighPath;
 
     try {
       final jsonString = await rootBundle.loadString(path);
       final data = json.decode(jsonString) as Map<String, dynamic>;
-      // Update with current session timestamp and actual duration
       data['sessionId'] = 'sess_${DateTime.now().millisecondsSinceEpoch}';
       data['lessonId'] = lessonId;
       data['activeDurationSeconds'] = activeDurationSeconds;
       data['completedAt'] = DateTime.now().toUtc().toIso8601String();
+      data['targetText'] = targetText;
       return PracticeResult.fromJson(data);
     } catch (_) {
-      // Inline fallback high score result
-      return PracticeResult(
-        sessionId: 'sess_${DateTime.now().millisecondsSinceEpoch}',
-        lessonId: lessonId,
-        userId: 'usr_dev_01',
-        completedAt: DateTime.now().toUtc().toIso8601String(),
-        activeDurationSeconds: activeDurationSeconds,
-        status: 'completed',
-        scores: ScoreBreakdown(overall: 92.0, accuracy: 94.0, fluency: 90.0, completeness: 95.0),
-        transcript: targetText,
+      return PhonemeAiEvaluator.evaluate(
         targetText: targetText,
-        words: [
-          WordEvaluation(
-            word: 'Think',
-            ipa: '/θɪŋk/',
-            score: 92.0,
-            status: 'correct',
-            phonemes: [
-              PhonemeEvaluation(
-                phoneme: 'θ',
-                ipaExpected: 'θ',
-                ipaActual: 'θ',
-                score: 91.0,
-                isCorrect: true,
-              )
-            ],
-          )
-        ],
-        feedbackTips: ['Phát âm rất chuẩn! Tiếp tục duy trì phong độ.'],
+        expectedIpa: expectedIpa,
+        spokenText: targetText,
+        lessonId: lessonId,
+        activeDurationSeconds: activeDurationSeconds,
+        simulateLowScore: false,
       );
     }
   }
@@ -413,14 +407,20 @@ class MockSpeechAiService implements SpeechAiService {
 class MockAudioRecordingService implements AudioRecordingService {
   bool _isRecording = false;
   DateTime? _startTime;
+  String _mockTranscript = '';
 
   @override
   bool get isRecording => _isRecording;
 
   @override
-  Future<void> startRecording() async {
+  String get latestTranscript => _mockTranscript;
+
+  @override
+  Future<void> startRecording({void Function(String recognizedWords)? onTranscriptionUpdated}) async {
     _isRecording = true;
     _startTime = DateTime.now();
+    _mockTranscript = 'I think this is the right path';
+    onTranscriptionUpdated?.call(_mockTranscript);
   }
 
   @override
@@ -433,6 +433,7 @@ class MockAudioRecordingService implements AudioRecordingService {
     return AudioRecordResult(
       filePath: '/mock/storage/records/recording_${DateTime.now().millisecondsSinceEpoch}.wav',
       durationSeconds: duration,
+      recognizedText: _mockTranscript,
     );
   }
 
@@ -440,6 +441,7 @@ class MockAudioRecordingService implements AudioRecordingService {
   Future<void> cancelRecording() async {
     _isRecording = false;
     _startTime = null;
+    _mockTranscript = '';
   }
 }
 

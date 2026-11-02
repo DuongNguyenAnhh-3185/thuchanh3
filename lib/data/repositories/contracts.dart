@@ -40,23 +40,27 @@ abstract class SpeechAiService {
     required int activeDurationSeconds,
     bool simulateError = false,
     bool simulateLowScore = false,
+    String? spokenText,
   });
 }
 
 abstract class AudioRecordingService {
-  Future<void> startRecording();
+  Future<void> startRecording({void Function(String recognizedWords)? onTranscriptionUpdated});
   Future<AudioRecordResult> stopRecording();
   Future<void> cancelRecording();
   bool get isRecording;
+  String get latestTranscript;
 }
 
 class AudioRecordResult {
   final String filePath;
   final int durationSeconds;
+  final String? recognizedText;
 
   AudioRecordResult({
     required this.filePath,
     required this.durationSeconds,
+    this.recognizedText,
   });
 }
 

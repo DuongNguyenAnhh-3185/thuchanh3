@@ -15,17 +15,18 @@ class PracticeScreen extends StatefulWidget {
   State<PracticeScreen> createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProviderStateMixin {
+class _PracticeScreenState extends State<PracticeScreen> with TickerProviderStateMixin {
   final _services = AppServices();
   final _textToSpeech = FlutterTts();
   Lesson? _lesson;
   bool _isLoadingLesson = true;
 
-  // Recording state
+  // Recording & STT state
   bool _isRecording = false;
   int _activeSeconds = 0;
   Timer? _timer;
   String? _recordedFilePath;
+  String _currentTranscript = '';
 
   // AI Evaluation state
   bool _isEvaluating = false;
@@ -38,6 +39,7 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late AnimationController _waveController;
 
   @override
   void initState() {
@@ -50,6 +52,11 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
+    _waveController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..repeat(reverse: true);
+
     _initLesson();
   }
 
@@ -61,6 +68,7 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
     }
     unawaited(_textToSpeech.stop());
     _pulseController.dispose();
+    _waveController.dispose();
     super.dispose();
   }
 
@@ -83,11 +91,20 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
     setState(() {
       _errorMessage = null;
       _recordedFilePath = null;
+      _currentTranscript = '';
       _activeSeconds = 0;
     });
 
     try {
-      await _services.audioRecordingService.startRecording();
+      await _services.audioRecordingService.startRecording(
+        onTranscriptionUpdated: (text) {
+          if (mounted) {
+            setState(() {
+              _currentTranscript = text;
+            });
+          }
+        },
+      );
       if (!mounted) {
         await _services.audioRecordingService.cancelRecording();
         return;
@@ -118,6 +135,9 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
         _isRecording = false;
         _recordedFilePath = result.filePath;
         _activeSeconds = result.durationSeconds;
+        if (result.recognizedText != null && result.recognizedText!.isNotEmpty) {
+          _currentTranscript = result.recognizedText!;
+        }
         if (result.durationSeconds < 1) {
           _errorMessage = 'Bản thu quá ngắn. Hãy đọc hết câu rồi thử lại nhé.';
         }
@@ -150,7 +170,7 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
 
     try {
       // 1. Call AI service to evaluate phonemes and score pronunciation
-      final result = await _services.speechAiService.evaluatePronunciation(
+      var result = await _services.speechAiService.evaluatePronunciation(
         audioFilePath: _recordedFilePath!,
         lessonId: _lesson!.id,
         targetText: _lesson!.text,
@@ -158,19 +178,27 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
         activeDurationSeconds: _activeSeconds,
         simulateLowScore: _simulateLowScore,
         simulateError: _simulateError,
+        spokenText: _currentTranscript.isNotEmpty ? _currentTranscript : null,
       );
 
-      // 2. SINGLE SOURCE OF TRUTH: Practice module saves result to Database
+      // 2. Lấy thông tin user đang đăng nhập và gán đúng userId để hiển thị trong Lịch sử
+      final user = await _services.authRepo.getCurrentUser();
+      result = result.copyWith(userId: user.id);
+
+      // 3. SINGLE SOURCE OF TRUTH: Lưu kết quả phiên luyện tập vào SQLite Database
       await _services.practiceRepo.savePracticeResult(result);
 
-      // 3. Update local user progress
-      final user = await _services.authRepo.getCurrentUser();
+      // 4. Cập nhật tiến độ của người dùng (tổng buổi học, số phút active)
       await _services.authRepo.updateProfile(
         user.copyWith(
           totalSessions: user.totalSessions + 1,
           totalActiveMinutes: user.totalActiveMinutes + (_activeSeconds ~/ 60),
+          lastPracticeDate: DateTime.now().toIso8601String().split('T').first,
         ),
       );
+
+      // 5. Tính toán lại Streak (chuỗi ngày học)
+      await _services.streakRepo.recalculateStreak(user.id);
 
       // 4. Navigate to ResultScreen
       if (mounted) {
@@ -206,8 +234,6 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
       await _textToSpeech.setSpeechRate(0.42);
       await _textToSpeech.setVolume(1.0);
       final result = await _textToSpeech.speak(text);
-      // Web TTS resolves to null after utterance completion; native plugins
-      // return 1 when speaking succeeds.
       if (result != null && result != 1) {
         throw StateError('Thiết bị không có giọng đọc English khả dụng.');
       }
@@ -320,7 +346,70 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // REAL-TIME SPEECH RECOGNITION (STT) BOX
+            if (_isRecording || _currentTranscript.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _isRecording ? AppTheme.accentIndigo : const Color(0xFFCBD5E1),
+                    width: _isRecording ? 1.5 : 1.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.accentIndigo.withOpacity(0.06),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _isRecording ? AppTheme.errorRed : AppTheme.successGreen,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _isRecording
+                              ? 'Đang nhận diện giọng nói (STT en-US):'
+                              : 'Văn bản đã nhận diện từ Microphone:',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: _isRecording ? AppTheme.errorRed : AppTheme.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _currentTranscript.isNotEmpty
+                          ? _currentTranscript
+                          : 'Hãy đọc câu tiếng Anh vào micro...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontStyle: _currentTranscript.isEmpty ? FontStyle.italic : FontStyle.normal,
+                        color: _currentTranscript.isNotEmpty ? AppTheme.textMain : AppTheme.textMuted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+            ],
 
             // RECORDING VISUALIZER & TIMER
             Column(
@@ -337,7 +426,7 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                     color: _isRecording ? AppTheme.errorRed : AppTheme.textMuted,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Text(
                   '${_activeSeconds ~/ 60}:${(_activeSeconds % 60).toString().padLeft(2, '0')}',
                   style: TextStyle(
@@ -346,6 +435,28 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                     color: _isRecording ? AppTheme.errorRed : AppTheme.textMain,
                   ),
                 ),
+                const SizedBox(height: 12),
+
+                // AUDIO WAVEFORM ANIMATION WHEN RECORDING
+                if (_isRecording)
+                  AnimatedBuilder(
+                    animation: _waveController,
+                    builder: (context, child) {
+                      final v = _waveController.value;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildWaveBar(12 + 16 * v),
+                          _buildWaveBar(20 + 20 * (1 - v)),
+                          _buildWaveBar(14 + 26 * v),
+                          _buildWaveBar(26 + 18 * (1 - v)),
+                          _buildWaveBar(16 + 24 * v),
+                          _buildWaveBar(22 + 14 * (1 - v)),
+                          _buildWaveBar(10 + 18 * v),
+                        ],
+                      );
+                    },
+                  ),
                 const SizedBox(height: 16),
 
                 // PULSING MICROPHONE BUTTON
@@ -425,6 +536,9 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.secondaryTeal,
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 child: _isEvaluating
                     ? const Row(
@@ -436,7 +550,10 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                           ),
                           SizedBox(width: 12),
-                          Text('AI đang phân tích âm vị...'),
+                          Text(
+                            'AI đang phân tích âm vị...',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          ),
                         ],
                       )
                     : const Row(
@@ -457,6 +574,9 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
             // TESTING TOOLBOX CARD (FOR TV3 & TV4 VALIDATION)
             Card(
               color: const Color(0xFFF1F5F9),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -505,6 +625,18 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildWaveBar(double height) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      width: 4,
+      height: height.clamp(8.0, 40.0),
+      decoration: BoxDecoration(
+        color: AppTheme.accentIndigo,
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
