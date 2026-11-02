@@ -1,6 +1,6 @@
 # Báo cáo kiểm thử đa giọng đọc và phản hồi phát âm
 
-**Phụ trách:** Thái (Checklist 5 và 7)  
+**Phụ trách:** Thái  
 **Nhánh:** `feature/thai-result-feedback-testing`  
 **Phạm vi:** Màn hình kết quả `/result`, hiển thị IPA và phản hồi phát âm.
 
