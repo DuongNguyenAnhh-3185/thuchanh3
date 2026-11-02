@@ -15,6 +15,7 @@ class _LessonListScreenState extends State<LessonListScreen> {
   final _services = AppServices();
   List<Lesson> _allLessons = [];
   List<Lesson> _filteredLessons = [];
+  Map<String, double> _bestScoresByLesson = {};
   String _selectedLevel = 'All';
   String _searchQuery = '';
   bool _isLoading = true;
@@ -22,14 +23,29 @@ class _LessonListScreenState extends State<LessonListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadLessons();
+    _loadLessonsAndProgress();
   }
 
-  Future<void> _loadLessons() async {
+  Future<void> _loadLessonsAndProgress() async {
     setState(() => _isLoading = true);
+    final user = await _services.authRepo.getCurrentUser();
     final lessons = await _services.lessonRepo.getLessons();
+    final history = await _services.practiceRepo.getHistory(user.id);
+
+    // Compute best score per lesson
+    final Map<String, double> bestScores = {};
+    for (final session in history) {
+      final overall = session.scores.overall;
+      if (overall != null) {
+        if (!bestScores.containsKey(session.lessonId) || overall > bestScores[session.lessonId]!) {
+          bestScores[session.lessonId] = overall;
+        }
+      }
+    }
+
     setState(() {
       _allLessons = lessons;
+      _bestScoresByLesson = bestScores;
       _applyFilter();
       _isLoading = false;
     });
@@ -48,10 +64,29 @@ class _LessonListScreenState extends State<LessonListScreen> {
           .where((l) =>
               l.title.toLowerCase().contains(q) ||
               l.text.toLowerCase().contains(q) ||
-              l.category.toLowerCase().contains(q))
+              l.category.toLowerCase().contains(q) ||
+              l.targetPhonemes.any((p) => p.toLowerCase().contains(q)))
           .toList();
     }
     _filteredLessons = result;
+  }
+
+  void _playQuickSample(Lesson lesson) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.volume_up, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text('Phát âm mẫu: "${lesson.text}"', maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -59,6 +94,13 @@ class _LessonListScreenState extends State<LessonListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kho Bài Luyện Phát Âm'),
+        actions: [
+          IconButton(
+            tooltip: 'Làm mới',
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: _loadLessonsAndProgress,
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -69,7 +111,7 @@ class _LessonListScreenState extends State<LessonListScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Tìm kiếm bài học, âm vị...',
+                      hintText: 'Tìm kiếm bài học, âm vị /θ/, /ð/...',
                       prefixIcon: const Icon(Icons.search, size: 20),
                       filled: true,
                       fillColor: Colors.white,
@@ -100,7 +142,7 @@ class _LessonListScreenState extends State<LessonListScreen> {
                     children: ['All', 'Beginner', 'Intermediate', 'Advanced'].map((level) {
                       final isSelected = _selectedLevel == level;
                       final label = level == 'All'
-                          ? 'Tất cả'
+                          ? 'Tất cả (${_allLessons.length})'
                           : level == 'Beginner'
                               ? 'Cơ bản'
                               : level == 'Intermediate'
@@ -148,7 +190,8 @@ class _LessonListScreenState extends State<LessonListScreen> {
                           separatorBuilder: (_, __) => const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final lesson = _filteredLessons[index];
-                            return _buildLessonCard(lesson);
+                            final bestScore = _bestScoresByLesson[lesson.id];
+                            return _buildLessonCard(lesson, bestScore);
                           },
                         ),
                 ),
@@ -157,12 +200,14 @@ class _LessonListScreenState extends State<LessonListScreen> {
     );
   }
 
-  Widget _buildLessonCard(Lesson lesson) {
+  Widget _buildLessonCard(Lesson lesson, double? bestScore) {
     final levelColor = lesson.level == 'Beginner'
         ? AppTheme.secondaryTeal
         : lesson.level == 'Intermediate'
             ? AppTheme.accentIndigo
             : const Color(0xFF7C3AED);
+
+    final isCompleted = bestScore != null;
 
     return Card(
       child: InkWell(
@@ -175,41 +220,68 @@ class _LessonListScreenState extends State<LessonListScreen> {
               lessonId: lesson.id,
               initialLesson: lesson,
             ),
-          );
+          ).then((_) => _loadLessonsAndProgress());
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header tag: Category and Level
+              // Header tag: Category and Level + Completion Badge
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    lesson.category.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.textMuted,
-                      letterSpacing: 0.8,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: levelColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          lesson.level,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: levelColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        lesson.category.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.textMuted,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: levelColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      lesson.level,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: levelColor,
+                  if (isCompleted)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppTheme.successGreen.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, size: 12, color: AppTheme.successGreen),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Điểm cao nhất: ${bestScore.toInt()}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.successGreen,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -248,16 +320,12 @@ class _LessonListScreenState extends State<LessonListScreen> {
               ),
               const SizedBox(height: 10),
 
-              // Target phonemes chips + CTA arrow
+              // Target phonemes chips + Audio Sample Button + CTA arrow
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      const Text(
-                        'Âm trọng tâm: ',
-                        style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
-                      ),
                       ...lesson.targetPhonemes.map(
                         (p) => Container(
                           margin: const EdgeInsets.only(right: 4),
@@ -275,6 +343,13 @@ class _LessonListScreenState extends State<LessonListScreen> {
                             ),
                           ),
                         ),
+                      ),
+                      IconButton(
+                        tooltip: 'Nghe nhanh âm mẫu',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(Icons.volume_up_outlined, size: 18, color: AppTheme.accentIndigo),
+                        onPressed: () => _playQuickSample(lesson),
                       ),
                     ],
                   ),

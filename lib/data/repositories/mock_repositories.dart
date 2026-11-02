@@ -205,6 +205,18 @@ class MockPracticeRepository implements PracticeRepository {
     await _ensureInitialized();
     return List.unmodifiable(_sessions);
   }
+
+  @override
+  Future<void> deleteSession(String sessionId) async {
+    await _ensureInitialized();
+    _sessions.removeWhere((s) => s.sessionId == sessionId);
+  }
+
+  @override
+  Future<void> clearHistory(String userId) async {
+    await _ensureInitialized();
+    _sessions.removeWhere((s) => s.userId == userId);
+  }
 }
 
 class MockStreakProgressRepository implements StreakProgressRepository {
