@@ -14,7 +14,7 @@ import 'features/settings/settings_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize service locator with mock services by default
+  // Keep mock lessons and AI scoring; audio capture uses the device microphone.
   AppServices().initialize(useMock: true);
 
   runApp(const AiPronunciationApp());
