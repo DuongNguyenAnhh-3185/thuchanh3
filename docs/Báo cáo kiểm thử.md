@@ -35,7 +35,7 @@ Mỗi người đọc cùng một bộ câu chuẩn, thu trong điều kiện y�
 
 Lệnh xác nhận: `flutter test test/features/result/result_screen_test.dart` — 4 test pass (xác minh lại ngày 02-11-2026).
 
-## Nghiệm thu kiểm thử giọng thật
+## Giới hạn và kiểm thử giọng thật còn thiếu
 
 Các ca V01–V05 là kế hoạch chạy với người tham gia và bản ghi thực tế. Chưa có bản ghi đa người nói hoặc kết quả API thực trong bộ fixture hiện tại, vì vậy không kết luận độ chính xác AI theo giới tính, trình độ hay vùng giọng từ mock. Khi chạy, bổ sung số phiên hợp lệ, tỷ lệ nhận dạng đúng từng âm mục tiêu, tỷ lệ lỗi âm vị bị bỏ sót, tỷ lệ cảnh báo nhầm, số lỗi API và ghi chú thiết bị/điều kiện thu.
 
